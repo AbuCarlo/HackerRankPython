@@ -9,12 +9,12 @@ def countingValleys(steps, path):
         profile.append(elevation)
     valleys = 0
     mountains = 0
-    for i, e in enumerate(profile[1:]):
-        if e != 0:
+    # Compare adjacent elevations.
+    for l, r in zip(profile, profile[1:]):
+        if r != 0:
             continue
-        # There's only up and down.
-        # "i" is offset by one.
-        if profile[i] > 0:
+        # We just came off a mountain.
+        if l > 0:
             mountains += 1
         else:
             valleys += 1
