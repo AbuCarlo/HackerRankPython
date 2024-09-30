@@ -80,6 +80,9 @@ def minTime(roads, machines) -> int:
     edges_removed = 0
     targets = set(machines)
     for machine in machines:
+        # Since this is an undirected graph, we will not have to
+        # find paths to this machine hereafter; we've already found
+        # all paths from it.
         targets.remove(machine)
         paths = graph.find_shortest_paths(machine, targets)
         cheapest_edges = set()
