@@ -47,9 +47,7 @@ def find_runs(values):
 
 def riddle(v):
     runs = find_runs(v)
-    reversed = {}
-    for length, value in runs.items():
-        reversed[value] = length
+    reversed = {v: k for k, v in runs.items()}
     result = []
     for i in range(1, len(v) + 1):
         # TODO We don't have a lower-bound function. Use binary search?
