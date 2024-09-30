@@ -8,6 +8,8 @@
 # by both the respective paths, since those two 
 # machines would still be connected to each other.
 
+# See https://www.hackerrank.com/challenges/matrix/problem
+
 from collections import defaultdict
 import heapq
 import sys
