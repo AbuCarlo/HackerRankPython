@@ -46,7 +46,10 @@ def find_runs(values):
 
 def riddle(v):
     runs = find_runs(v)
-    inverted = {v: k for k, v in runs.items()}
+    inverted = {}
+    # The C++ implementation uses a tree-map.
+    for k in sorted(runs.items()):
+        inverted[runs[k]] = k
     import bisect
     bisectable = sorted(inverted.keys())
     result = []
