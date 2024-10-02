@@ -7,31 +7,32 @@ class RunByValue:
         self.value = value
         self.length = length
         
-    def __str__(self):
+    def __repr__(self):
         return f'Run(value: {self.value}, length: {self.length})'
         
 
 def find_runs(values):
     result = {}
-    stack = [RunByValue(values[0], 1)]
+    import collections
+    stack = collections.deque([RunByValue(values[0], 1)])
     for value in values[1:]:
         # Start a new run. The current value is a new local minimum.
         if value > stack[0].value:
-            stack = [RunByValue(value, 1)] + stack
+            stack.appendleft(RunByValue(value, 1))
             continue
         
         pair = RunByValue(value, 1)
         length = 0
-        # While the current value is less than its predecessors...
+        # While the current value is less than the minimum in this run...
         while stack and value <= stack[0].value:
-            # ...collapse this value into as many runs as you can.
+            # ...extend the run.
             stack[0].length += length
             length = stack[0].length
-            # What's the longest run with this maximum?
+            # What's the longest run with this minimum?
             result[stack[0].value] = max(stack[0].length, result.get(stack[0].value, 0))
-            stack = stack[1:]
+            stack.popleft()
         pair.length += length
-        stack = [pair] + stack
+        stack.appendleft(pair)
     # The dictionary will be empty if the inputs are increasing.
     length = 0
     # The stack now represents every decreasing subarray, in reverse order.
@@ -40,7 +41,7 @@ def find_runs(values):
         stack[0].length += length
         length = stack[0].length
         result[stack[0].value] = max(stack[0].length, result.get(stack[0].value, 0))
-        stack = stack[1:]
+        stack.popleft()
 
     return result
 
