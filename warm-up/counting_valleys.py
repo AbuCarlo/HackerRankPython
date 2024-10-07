@@ -1,3 +1,5 @@
+# https://www.hackerrank.com/challenges/counting-valleys/problem
+
 def countingValleys(steps, path):
     profile = [0]
     elevation = 0

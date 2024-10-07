@@ -52,6 +52,7 @@ t = int(input())
 for i in range(t):
     n,m = [int(value) for value in input().split()]
     graph = Graph(n)
+    # The input is 1-based; our code is 0-based.
     for i in range(m):
         x,y = [int(x) for x in input().split()]
         graph.connect(x-1,y-1) 
