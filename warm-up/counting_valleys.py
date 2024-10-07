@@ -1,6 +1,7 @@
-# https://www.hackerrank.com/challenges/counting-valleys/problem
+'''https://www.hackerrank.com/challenges/counting-valleys/problem'''
 
-def countingValleys(steps, path):
+# pylint: disable=C0103
+def countingValleys(_, path):
     profile = [0]
     elevation = 0
     for step in path:

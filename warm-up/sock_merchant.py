@@ -1,5 +1,6 @@
-# https://www.hackerrank.com/challenges/sock-merchant/problem
+'''https://www.hackerrank.com/challenges/sock-merchant/problem'''
 
+# pylint: disable=C0103
 def sockMerchant(n, ar):
     m = {}
     for sock in ar:
