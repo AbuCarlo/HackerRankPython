@@ -3,6 +3,7 @@ def find_root(roots, v):
         v = roots[v]
     return v
 
+# pylint: disable=C0103
 def friendcircle(queries):
     roots = {}
     sizes = {}

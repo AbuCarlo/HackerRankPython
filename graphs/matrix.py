@@ -18,7 +18,7 @@ import time
 
 class Graph:
     def __init__(self, cities):
-        self.order = max(max([e[0] for e in cities]), max([e[1] for e in cities])) + 1
+        self.order = max(max(e[0], e[1]) for e in cities) + 1
         self.adjacency = defaultdict(lambda: {})
         for (u, v, cost) in cities:
             self.connect(u, v, cost)
@@ -38,7 +38,7 @@ class Graph:
         visited = set()
 
         found = []
-        
+
         distances[source] = 0
         # The default sorting for a heap of tuples will be
         # on the first element of the tuples, conveniently.
@@ -61,7 +61,7 @@ class Graph:
                     distances[v] = alt
                     previous[v] = u
                 heapq.heappush(queue, (distances[v], v))
-                
+
             visited.add(u)
 
         paths = []
@@ -74,9 +74,10 @@ class Graph:
             path.append(source)
             path.reverse()
             paths.append(path)
-            
+
         return paths
-    
+
+# pylint: disable=C0103   
 def minTime(roads, machines) -> int:
     graph = Graph(roads)
     result = 0
@@ -105,7 +106,7 @@ def minTime(roads, machines) -> int:
             break
         for u, v in cheapest_edges:
             graph.disconnect(u, v)
-            
+
     return result
 
 def load(file):

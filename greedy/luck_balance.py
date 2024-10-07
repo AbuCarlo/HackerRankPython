@@ -27,7 +27,9 @@ def recurse(m, k, c):
     m[key] = result
     return result
 
+# pylint: disable=C0103
 def luckBalance(k, c):
+    '''Memoized implementation starts with 0 memos.'''
     m = {}
     return recurse(m, k, c)
 

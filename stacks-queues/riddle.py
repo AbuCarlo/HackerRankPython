@@ -6,10 +6,10 @@ class RunByValue:
     def __init__(self, value, length):
         self.value = value
         self.length = length
-        
+
     def __repr__(self):
         return f'Run(value: {self.value}, length: {self.length})'
-        
+
 
 def find_runs(values):
     result = {}

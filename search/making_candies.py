@@ -1,5 +1,6 @@
 import math
 
+# pylint: disable=C0103
 def minimumPasses(machines, workers, price, target):
     if target <= price: return math.ceil(target / (machines * workers))
 
