@@ -1,6 +1,6 @@
 # https://www.hackerrank.com/challenges/ctci-bfs-shortest-reach/problem
 #
-# It's just Dijkstra. I'm not sure what's supposed to the hard about this.
+# It's just Dijkstra. I'm not sure what's supposed to be hard about this.
 
 class Graph:
     def __init__(self, order):

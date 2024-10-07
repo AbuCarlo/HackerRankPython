@@ -21,7 +21,7 @@ def countingValleys(steps, path):
     return valleys
 
 # sample
-# print(countingValleys(8, 'UDDDUDUU'))
+print(countingValleys(8, 'UDDDUDUU'))
         
 # Test Case 2
 print(countingValleys(10, 'UDUUUDUDDD'))

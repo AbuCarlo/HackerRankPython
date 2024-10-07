@@ -40,6 +40,8 @@ class Graph:
         found = []
         
         distances[source] = 0
+        # The default sorting for a heap of tuples will be
+        # on the first element of the tuples, conveniently.
         heapq.heappush(queue, (0, source))
 
         while queue:
@@ -84,7 +86,8 @@ def minTime(roads, machines) -> int:
     for machine in machines:
         # Since this is an undirected graph, we will not have to
         # find paths to this machine hereafter; we've already found
-        # all paths from it.
+        # all paths from it. This step is crucial to passing the 
+        # assignment in time.
         targets.remove(machine)
         paths = graph.find_shortest_paths(machine, targets)
         cheapest_edges = set()
@@ -92,10 +95,12 @@ def minTime(roads, machines) -> int:
             # What is the lowest-cost edge on this path?
             edges = [(path[i - 1], path[i]) for i in range(1, len(path))]
             cheapest = min(edges, key = lambda e: graph.adjacency[e[0]][e[1]])
+            # Deduplicate undirected edges by always putting the lower vertex number first.
             cheapest_edges.add(cheapest if cheapest[0] < cheapest[1] else (cheapest[1], cheapest[0]))
         costs = [graph.adjacency[u][v] for u, v in cheapest_edges]
         result += sum(costs)
         edges_removed += len(cheapest_edges)
+        # We know that we'll have to removed |V| - 1 edges.
         if edges_removed == len(machines) - 1:
             break
         for u, v in cheapest_edges:
