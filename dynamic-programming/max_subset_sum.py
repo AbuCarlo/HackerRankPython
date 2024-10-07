@@ -39,24 +39,27 @@ class TestStringMethods(unittest.TestCase):
 
     def test_empty(self):
         self.assertEqual(maxSubsetSum([]), 0)
-        
+    
     def test_negatives(self):
-        # If all values are <= 0, the solution is 0.
+        '''If all values are <= 0, the solution is 0.'''    
         negatives = [random.randint(-1000, 0) for _ in range(TestStringMethods.Limit)]
         self.assertEqual(maxSubsetSum(negatives), 0)
         
     def test_sorted(self):
-        # For a sorted array of positive numbers, the solution will include the final (largest) value.
+        '''For a sorted array of positive numbers, the solution will include the final (largest) value.'''
         srted =  sorted([random.randint(1, 1000) for _ in range(TestStringMethods.Limit)])
         expected = sum(srted[i] for i in range(20) if i % 2 == 1)
         self.assertEqual(maxSubsetSum(srted), expected)
         
     def test_samples(self):
+        '''Samples taken from HackerRank'''
         self.assertEqual(maxSubsetSum([3, 7, 4, 6, 5]), 13)
         self.assertEqual(maxSubsetSum([2, 1, 5, 8, 4]), 11)
         self.assertEqual(maxSubsetSum([3, 5, -7, 8, 10]), 15)
         
     def test_mixed(self):
+        '''For all other inputs, generate all possible combinations of non-adjacent elements
+        Then find the maximum sum among them.'''
         mixed = [random.randint(-1000, 1000) for _ in range(TestStringMethods.Limit)]
         possible_indices = non_adjacent(TestStringMethods.Limit)
         possible_subarrays = [[mixed[i] for i in pi] for pi in possible_indices]
