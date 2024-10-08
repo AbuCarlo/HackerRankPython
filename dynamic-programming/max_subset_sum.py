@@ -19,10 +19,8 @@ def maxSubsetSum(a):
             near, far =  (far + n, max(far, near))
     return max(far, near)
 
-# See https://docs.python.org/2/library/itertools.html#recipes
-
 def powerset(iterable):
-    "powerset([1,2,3]) --> () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
+    ''' See https://docs.python.org/2/library/itertools.html#recipes'''
     s = list(iterable)
     return itertools.chain.from_iterable(itertools.combinations(s, r) for r in range(len(s)+1))
 
@@ -30,11 +28,11 @@ def non_adjacent(upper):
     '''Generate all subsets such that no two adjacent elements will be selected.'''
     sets = powerset(range(upper))
     # itertools.pairwise() added in 3.10.
-    f = lambda l: all(p[1] - p[0] > 1 for p in itertools.pairwise(l))
-    return filter(f, sets)
+    # Eliminate combinations with consecutive indices.
+    return filter(lambda l: all(p[1] - p[0] > 1 for p in itertools.pairwise(l)), sets)
 
 class TestStringMethods(unittest.TestCase):
-
+    '''Unit tests for non_adjacent()'''
     Limit = 20
 
     def test_empty(self):

@@ -1,6 +1,12 @@
-# https://www.hackerrank.com/challenges/ctci-bfs-shortest-reach/problem
-#
-# It's just Dijkstra. I'm not sure what's supposed to be hard about this.
+'''
+https://www.hackerrank.com/challenges/ctci-bfs-shortest-reach/problem
+
+It's just Dijkstra. I'm not sure what's supposed to be hard about this.
+'''
+
+
+import sys
+
 
 class Graph:
     def __init__(self, order):
@@ -44,8 +50,7 @@ class Graph:
         print(*answer)
         
 
-import sys
-sys.stdin = open("shortest-reach-inputs/sample.txt", "r")
+sys.stdin = open("shortest-reach-inputs/sample.txt", "r", encoding='UTF-8')
 
 t = int(input())
 

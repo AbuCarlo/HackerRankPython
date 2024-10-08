@@ -1,6 +1,9 @@
-# https://www.hackerrank.com/challenges/min-max-riddle/problem
+'''
+    https://www.hackerrank.com/challenges/min-max-riddle/problem
 
-# "Given an integer array of size n, find the maximum of the minimum(s) of every window size in the array"
+    "Given an integer array of size n, find the maximum of the
+    minimum(s) of every window size in the array"
+'''
 
 class RunByValue:
     def __init__(self, value, length):

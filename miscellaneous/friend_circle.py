@@ -1,4 +1,12 @@
+'''
+https://www.hackerrank.com/challenges/friend-circle-queries/problem
+
+This is essentially a "disjoint sets" problem.
+
+'''
+
 def find_root(roots, v):
+    '''Find the disjoint set containing v'''
     while v != roots[v]:
         v = roots[v]
     return v

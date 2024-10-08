@@ -25,7 +25,6 @@ def countingValleys(_, path):
 
 # sample
 print(countingValleys(8, 'UDDDUDUU'))
-        
+
 # Test Case 2
 print(countingValleys(10, 'UDUUUDUDDD'))
-        

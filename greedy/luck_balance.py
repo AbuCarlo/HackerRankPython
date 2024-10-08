@@ -1,8 +1,7 @@
-# https://www.hackerrank.com/challenges/luck-balance/problem
+'''https://www.hackerrank.com/challenges/luck-balance/problem'''
 
-sample_0 = [[5, 1], [2, 1], [1, 1], [8, 1], [10, 0], [5, 0]]
 
-# "m" contains memoized subproblems. 
+# "m" contains memoized subproblems.
 # "k" is, per HackerRank, "the number of important contests Lena can lose."
 # "c" is the remaining contests (i.e. some tail of the initial array).
 def recurse(m, k, c):
@@ -33,8 +32,8 @@ def luckBalance(k, c):
     m = {}
     return recurse(m, k, c)
 
-print(luckBalance(3, sample_0))
+# Sample 0
+assert luckBalance(3, [[5, 1], [2, 1], [1, 1], [8, 1], [10, 0], [5, 0]]) == 29
 
-sample_02 = [[5, 1], [4, 0], [6, 1], [2, 1], [8, 0]]
-
-print(luckBalance(2, sample_02))
+# Sample 1
+assert luckBalance(2, [[5, 1], [4, 0], [6, 1], [2, 1], [8, 0]]) == 21

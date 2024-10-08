@@ -26,11 +26,11 @@ class Graph:
     def connect(self, u, v, cost):
         self.adjacency[u][v] = cost
         self.adjacency[v][u] = cost
-        
+
     def disconnect(self, u, v):
         del self.adjacency[v][u]
         del self.adjacency[u][v]
-        
+
     def find_shortest_paths(self, source, targets):
         queue = []
         distances = defaultdict(lambda: sys.maxsize)
@@ -110,7 +110,8 @@ def minTime(roads, machines) -> int:
     return result
 
 def load(file):
-    with open(file, "r") as f:
+    '''Load a downloaded test case.'''
+    with open(file, "r", encoding='UTF-8') as f:
         first_multiple_input = f.readline().rstrip().split()
         n = int(first_multiple_input[0])
         k = int(first_multiple_input[1])
@@ -127,8 +128,9 @@ def load(file):
             line = f.readline()
             machines_item = int(line.strip())
             machines.append(machines_item)
-            
+
         return roads, machines
+
 
 # Sample 0 / Test Case 0
 result0 = minTime([[2, 1, 8], [1, 0, 5], [2, 4, 5], [1, 3, 4]], [2, 4, 0])
@@ -141,10 +143,10 @@ print(result0, result1, result2)
 # 6: 492394728
 # 5: 28453895 @ 4s
 # 8: 3105329 @ 210s
-benchmark_graph, benchmark_machines = load('interviews/graphs/matrix-inputs/input05.txt')
+benchmark_graph, benchmark_machines = load('graphs/matrix-inputs/input05.txt')
 
 time_start = time.perf_counter()
-result = minTime(benchmark_graph, benchmark_machines)
+benchmark_result = minTime(benchmark_graph, benchmark_machines)
 time_end = time.perf_counter()
 time_duration = time_end - time_start
-print(f'Took {time_duration:.3f} seconds for result {result}')
+print(f'Took {time_duration:.3f} seconds for result {benchmark_result}')

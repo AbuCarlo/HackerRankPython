@@ -16,4 +16,3 @@ def jumpingOnClouds(c):
             position += 2
         jumps +=1
     return jumps
-
