@@ -23,7 +23,7 @@ def reverseShuffleMerge(s):
             counter[c] -= 1
             result += c
         else:
-            # Try to use characters from "shuffled" before 
+            # Try to use characters from "shuffled" before
             # larger characters from "counter".
             if shuffled[c]:
                 shuffled[c] -= 1
@@ -68,7 +68,11 @@ class TestReverseShuffleMerge(unittest.TestCase):
 
     def test_cases(self):
         '''test cases from HackerRank's "Submit"'''
+        # We can use str.translate() to "reduce" the problem
+        # in order to home in on the bug.
+        translator = {ord(c): None for c in 'defghijk'}
         for s, expected in test_cases:
+            s, expected = s.translate(translator), expected.translate(translator)
             self.assertEqual(reverseShuffleMerge(s), expected)
 
 if __name__ == '__main__':
