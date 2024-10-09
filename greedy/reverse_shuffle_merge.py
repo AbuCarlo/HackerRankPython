@@ -41,6 +41,14 @@ samples = [
     ['aeiouuoiea', 'aeiou']
 ]
 
+# pylint: disable=C0301
+test_cases = [
+    [
+        ('djjcddjggbiigjhfghehhbgdigjicafgjcehhfgifadihiajgciagicdahcbajjbhifjiaajigdgdfhdiijjgaiejgegbbiigida'),
+        'aaaaabccigicgjihidfiejfijgidgbhhehgfhjgiibggjddjjd'
+    ]
+]
+
 # pylint: disable=C0115
 class TestReverseShuffleMerge(unittest.TestCase):
 
@@ -54,8 +62,13 @@ class TestReverseShuffleMerge(unittest.TestCase):
         self.assertEqual(reverseShuffleMerge(s), s[:len(s) // 2])
 
     def test_samples(self):
-        '''Samples taken from HackerRank problem description'''
+        '''samples taken from HackerRank problem description'''
         for s, expected in samples:
+            self.assertEqual(reverseShuffleMerge(s), expected)
+
+    def test_cases(self):
+        '''test cases from HackerRank's "Submit"'''
+        for s, expected in test_cases:
             self.assertEqual(reverseShuffleMerge(s), expected)
 
 if __name__ == '__main__':
