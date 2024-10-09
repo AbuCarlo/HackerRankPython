@@ -1,10 +1,12 @@
 '''https://www.hackerrank.com/challenges/luck-balance/problem'''
 
 
-# "m" contains memoized subproblems.
-# "k" is, per HackerRank, "the number of important contests Lena can lose."
-# "c" is the remaining contests (i.e. some tail of the initial array).
 def recurse(m, k, c):
+    '''
+    :m contains memoized subproblems
+    :k per HackerRank, "the number of important contests Lena can lose."
+    :c the remaining contests (i.e. some tail of the initial array).
+    '''
     if not c:
         return 0
     key = (k, len(c))
