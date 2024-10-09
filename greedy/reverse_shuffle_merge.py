@@ -8,32 +8,34 @@ import unittest
 # pylint: disable=C0103
 def reverseShuffleMerge(s):
     '''
-    :s a string after shuffle-merge. We have to reverse-engineer the source string.
+    :s a string after reverse-shuffle-merge. We have to reverse-engineer the source string.
     '''
-    result = ''
-    counter  = collections.Counter(s)
-    # An input string "A" was reversed, then a permutation was
-    # shuffled into it, to produce s.
-    for c in counter.keys():
-        counter[c] //= 2
-    shuffled = dict(counter)
-    for c in reversed(s):
-        # Is this the largest character we want to unload?
-        if counter and c == min(counter.keys()):
-            counter[c] -= 1
-            result += c
-        else:
-            # Try to use characters from "shuffled" before
-            # larger characters from "counter".
-            if shuffled[c]:
-                shuffled[c] -= 1
-            else:
-                counter[c] -= 1
-                result += c
-        if counter[c] == 0:
-            del counter[c]
+    if not s:
+        return ''
+    counts  = collections.Counter(s)
+    # An input string "A" was reversed, then a permutation of A
+    # was shuffled into it to produce s. We need to get all these
+    # characters into "a".
+    required = {c: count // 2 for c, count in counts.items()}
+    a = [s[-1]]
+    required[s[-1]] -= 1
+    counts[s[-1]] -= 1
+    for c in reversed(s[:-1]):
+        # One way or another, we're consuming this character.
+        counts[s] -= 1
+        # We've put as many instances of this character into "a" as necessary.
+        if not required[c]:
+            continue
+        if c >= a[-1]:
+            a.append(c)
+            required[c] -= 1
+            continue
+        while a and c < a[-1] and counts[a[-1]] >= required[a[-1]] + 1:
+            required[a.pop()] += 1
+        a.append(c)
+        required[c] -= 1
 
-    return result
+    return "".join(a)
 
 samples = [
     ['eggegg', 'egg'],
@@ -58,8 +60,9 @@ class TestReverseShuffleMerge(unittest.TestCase):
 
     def test_single_character(self):
         '''A string of even length, repeating the same character'''
-        s = 'a' * (random.randint(1, 20) * 2)
-        self.assertEqual(reverseShuffleMerge(s), s[:len(s) // 2])
+        n = random.randint(1, 20)
+        s = 'a' * (n * 2)
+        self.assertEqual(reverseShuffleMerge(s), s[:n])
 
     def test_samples(self):
         '''samples taken from HackerRank problem description'''
