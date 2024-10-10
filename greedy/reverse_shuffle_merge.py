@@ -12,7 +12,7 @@ def reverseShuffleMerge(s):
     '''
     if not s:
         return ''
-    counts  = collections.Counter(s)
+    counts = collections.Counter(s)
     # An input string "A" was reversed, then a permutation of A
     # was shuffled into it to produce s. We need to get all these
     # characters into "a".
@@ -22,7 +22,7 @@ def reverseShuffleMerge(s):
     counts[s[-1]] -= 1
     for c in reversed(s[:-1]):
         # One way or another, we're consuming this character.
-        counts[s] -= 1
+        counts[c] -= 1
         # We've put as many instances of this character into "a" as necessary.
         if not required[c]:
             continue
@@ -30,11 +30,13 @@ def reverseShuffleMerge(s):
             a.append(c)
             required[c] -= 1
             continue
-        while a and c < a[-1] and counts[a[-1]] >= required[a[-1]] + 1:
-            required[a.pop()] += 1
+        while a and c < a[-1] and counts[a[-1]] > required[a[-1]]:
+            p = a.pop()
+            required[p] += 1
         a.append(c)
         required[c] -= 1
 
+    assert len(a) == len(s) // 2
     return "".join(a)
 
 samples = [
@@ -46,6 +48,12 @@ samples = [
 # pylint: disable=C0301
 test_cases = [
     [
+        # Test Case 1
+        'bdabaceadaedaaaeaecdeadababdbeaeeacacaba',
+        'aaaaaabaaceededecbdb'
+    ],
+    [
+        # Test Case 2
         ('djjcddjggbiigjhfghehhbgdigjicafgjcehhfgifadihiajgciagicdahcbajjbhifjiaajigdgdfhdiijjgaiejgegbbiigida'),
         'aaaaabccigicgjihidfiejfijgidgbhhehgfhjgiibggjddjjd'
     ]
@@ -71,11 +79,7 @@ class TestReverseShuffleMerge(unittest.TestCase):
 
     def test_cases(self):
         '''test cases from HackerRank's "Submit"'''
-        # We can use str.translate() to "reduce" the problem
-        # in order to home in on the bug.
-        translator = {ord(c): None for c in 'defghijk'}
         for s, expected in test_cases:
-            s, expected = s.translate(translator), expected.translate(translator)
             self.assertEqual(reverseShuffleMerge(s), expected)
 
 if __name__ == '__main__':
