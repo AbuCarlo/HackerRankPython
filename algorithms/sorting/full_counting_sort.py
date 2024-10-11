@@ -9,16 +9,17 @@ def count_sort_internal(a: list) -> list[str]:
     '''
     According to the examples online, this is how the 
     midpoint is calculated. The function is allowed
-    to be destructive.
+    to be destructive. 100 is the (exclusive) limit
+    to the key.
     '''
+    buckets = [[] for _ in range(100)]
     midpoint = len(a) // 2
     for i in range(midpoint):
         a[i][1] = '-'
-    # Python's sort() is guaranteed to be stable.
-    # Destructuring doesn't work for lambda arguments.
-    a.sort(key=lambda p: p[0])
-    # Throw the keys away.
-    return [s for _, s in a]
+    for i, (k, s) in enumerate(a):
+        buckets[int(k)].append('-' if i < midpoint else s)
+    result = [s for bucket in buckets for s in bucket]
+    return result
 
 # pylint: disable=C0103,C0116
 def countSort(a: list):
