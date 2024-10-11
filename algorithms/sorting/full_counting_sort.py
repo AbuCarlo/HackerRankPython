@@ -5,22 +5,19 @@ https://www.hackerrank.com/challenges/countingsort4
 import io
 import unittest
 
-def count_sort_internal(a: list[str]) -> list[str]:
+def count_sort_internal(a: list) -> list[str]:
     '''
-    Simply use a dictionary to bucket the strings by key.
+    According to the examples online, this is how the 
+    midpoint is calculated. The function is allowed
+    to be destructive.
     '''
-    # pylint: disable=C0415
-    from collections import defaultdict
-    d = defaultdict(list)
     midpoint = len(a) // 2
-    for i, (x, s) in enumerate(a):
-        d[x].append((i, s if i >= midpoint else '-'))
-
-    result = []
-    for x in sorted(d.keys()):
-        for i, s in d[x]:
-            result.append(s)
-    return result
+    for i in range(midpoint):
+        a[i][1] = '-'
+    # Python's sort() is guaranteed to be stable.
+    # Destructuring doesn't work for lambda arguments.
+    a.sort(key=lambda p: p[0])
+    return [s for k, s in a]
 
 # pylint: disable=C0103,C0116
 def countSort(a: list):
@@ -37,19 +34,23 @@ def countSortString(a: list[str]):
 def load_test(s):
     with io.open(f'counting-sort-4/{s}', encoding='UTF-8') as reader:
         reader.readline()
-        return [(int(s[0]), s[1]) for s in [line.rstrip().split(' ') for line in reader]]
+        return [[int(s[0]), s[1]] for s in [line.rstrip().split(' ') for line in reader]]
 
+def load_output(s):
+    with io.open(f'counting-sort-4/{s}', encoding='US-ASCII') as reader:
+        return reader.readline()
 
 class TestFullCountingSort(unittest.TestCase):
     '''
     Use HackerRank's test cases.
     '''
     def testTestCase(self):
-        test = load_test('input01.txt')
-        actual = countSortString(test)
-        with open('counting-sort-4/output01.txt', 'r', encoding='UTF-8') as f:
-            expected = f.read().rstrip()
-        self.assertEqual(actual, expected)
+        for i in [0, 1]:
+            with self.subTest(i):
+                test = load_test(f'input{i:02d}.txt')
+                actual = countSortString(test)
+                expected = load_output(f'output{i:02d}.txt')
+                self.assertEqual(actual, expected)
 
 if __name__ == '__main__':
     unittest.main()
