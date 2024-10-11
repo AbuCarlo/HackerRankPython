@@ -17,7 +17,8 @@ def count_sort_internal(a: list) -> list[str]:
     # Python's sort() is guaranteed to be stable.
     # Destructuring doesn't work for lambda arguments.
     a.sort(key=lambda p: p[0])
-    return [s for k, s in a]
+    # Throw the keys away.
+    return [s for _, s in a]
 
 # pylint: disable=C0103,C0116
 def countSort(a: list):
@@ -45,8 +46,8 @@ class TestFullCountingSort(unittest.TestCase):
     Use HackerRank's test cases.
     '''
     def testTestCase(self):
-        for i in [0, 1]:
-            with self.subTest(i):
+        for i in [0, 1, 2, 3]:
+            with self.subTest(f'Test Case {i}', i=i):
                 test = load_test(f'input{i:02d}.txt')
                 actual = countSortString(test)
                 expected = load_output(f'output{i:02d}.txt')
