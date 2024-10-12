@@ -18,8 +18,9 @@ def count_sort_internal(a: list) -> list[str]:
         a[i][1] = '-'
     for i, (k, s) in enumerate(a):
         buckets[int(k)].append('-' if i < midpoint else s)
-    result = [s for bucket in buckets for s in bucket]
-    return result
+    # pylint: disable=C0415
+    import itertools
+    return itertools.chain(*buckets)
 
 # pylint: disable=C0103,C0116
 def countSort(a: list):
