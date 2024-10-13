@@ -22,17 +22,21 @@ def pylons_internal(d: dict, k: int, arr: list[int]) -> int:
     if key in d:
         return d[key]
 
+    results = []
     for i, city in enumerate(arr):
         if i >= k:
-            return sys.maxsize
+            break
         # Don't place pylon here...
-        result = pylons_internal(d, k, arr[i + 1:])
+        no_pylon = pylons_internal(d, k, arr[i + 1:])
         # *Can* we place a pylon here?
+        pylon = sys.maxsize
         if city == 1:
-            result = min(result, pylons_internal(d, k - 1, arr[i + 1:]) + 1)
+            pylon = pylons_internal(d, k - 1, arr[i + 1:]) + 1
+        result =min(no_pylon, pylon)
         d[key] = result
+        results.append(result)
 
-    return -1
+    return min(results)
 
 
 def pylons(k: int, arr: list[int]) -> int:
@@ -52,8 +56,17 @@ def test_samples():
     assert pylons(6, [0, 1, 1, 1, 1, 0]) == 2 # Sample 0 from the problem description
 
 @hypothesis.given(
-    hypothesis.strategies.integers(min_value=1, max_value=100),
+    hypothesis.strategies.lists(hypothesis.strategies.booleans(), min_size=1)
 )
-def test_zero_pylons(p):
+def test_zero_pylons(a):
     '''0 pylons will not suffice.'''
-    assert pylons(0, [0] * p) == -1
+    cities = [1 if b else 0 for b in a]
+    assert pylons(0, cities) == -1
+
+@hypothesis.given(
+    hypothesis.strategies.integers(min_value=1)
+)
+def test_electrify_every_city(n):
+    '''If there are as many pylons as cities, there is a solution.'''
+    cities = [1] * n
+    assert pylons(len(cities), cities) > 0
