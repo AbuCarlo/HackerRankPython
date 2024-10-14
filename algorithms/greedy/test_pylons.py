@@ -5,61 +5,48 @@ Prepare | Algorithms | Greedy | Goodland Electricity
 '''
 
 import hypothesis
-import sys
-
 import hypothesis.statistics
 import hypothesis.strategies
 
-
-def pylons_internal(d: dict, k: int, arr: list[int]) -> int:
-    '''Recursive implementation using dictionary to store subsolutions'''
-    if not arr:
-        # No more pylons are necessary.
-        return 0
-    if k == 0:
-        return sys.maxsize
-    key = (k, len(arr))
-    if key in d:
-        return d[key]
-
-    results = []
-    for i, city in enumerate(arr):
-        if i >= k:
+def pylons_internal(previous: int, position: int, k: int, a: list[int]) -> int:     
+    while position < len(a):
+        if a[position] == 1:
             break
-        # Don't place pylon here...
-        no_pylon = pylons_internal(d, k, arr[i + 1:])
-        # *Can* we place a pylon here?
-        pylon = sys.maxsize
-        if city == 1:
-            pylon = pylons_internal(d, k - 1, arr[i + 1:]) + 1
-        result =min(no_pylon, pylon)
-        d[key] = result
-        results.append(result)
-
-    return min(results)
+    if position - previous > k * 2:
+        return -1
+    emplace = pylons_internal(position, position + 1, k, a)
+    dont_emplace = pylons_internal(previous, position + 1, k, a)
+    if emplace == - 1:
+        return dont_emplace + 1
+    if dont_emplace == -1:
+        return -1
+    return min( + 1, dont_emplace)
 
 
 def pylons(k: int, arr: list[int]) -> int:
     '''Use greedy algorithm with "memoization'''
-    d = {}
-    result = pylons_internal(d, k, arr)
-    return result if result < sys.maxsize else -1
+    return pylons_internal(-k, 0, k, arr)
 
 # pytest .\algorithms\greedy\pylons.py
 
-def test_empty_array():
+@hypothesis.given(
+    hypothesis.strategies.integers(min_value=1)
+)
+def test_empty_array(k):
     '''For any k, an empty array is possible. Randomize!'''
-    assert pylons(10, []) == 0 # 0 pylons are necessary to electrify an empty array.
+    assert pylons(k, []) == 0 # 0 pylons are necessary to electrify an empty array.
 
 def test_samples():
-    '''samples from problem statement'''
-    assert pylons(6, [0, 1, 1, 1, 1, 0]) == 2 # Sample 0 from the problem description
+    '''samples from "Run Code"'''
+    assert pylons(6, [0, 1, 1, 1, 1, 0]) == 2
+    assert pylons(2, [0, 1, 0, 0, 0, 1, 0]) == -1
+    assert pylons(3, [0, 1, 0, 0, 0, 1, 1, 1, 1, 1]) == 3
 
 @hypothesis.given(
     hypothesis.strategies.lists(hypothesis.strategies.booleans(), min_size=1)
 )
 def test_zero_pylons(a):
-    '''0 pylons will not suffice.'''
+    '''0 pylons will not suffice for any number of cities.'''
     cities = [1 if b else 0 for b in a]
     assert pylons(0, cities) == -1
 
@@ -69,4 +56,5 @@ def test_zero_pylons(a):
 def test_electrify_every_city(n):
     '''If there are as many pylons as cities, there is a solution.'''
     cities = [1] * n
-    assert pylons(len(cities), cities) > 0
+    assert pylons(n, cities) > 0
+
