@@ -74,7 +74,7 @@ def test_samples():
 
 def test_test_cases():
     '''Run test cases from dowloaded input files'''
-    for t, expected in [(4, 28)]:
+    for t, expected in [(4, 28), (12, 1206)]:
         path = f'algorithms/greedy/pylons-inputs/input{t:02d}.txt'
         with open(path, 'r', encoding='UTF-8') as f:
             _, k = f.readline().rstrip().split(' ')
