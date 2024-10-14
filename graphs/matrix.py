@@ -143,10 +143,15 @@ print(result0, result1, result2)
 # 6: 492394728
 # 5: 28453895 @ 4s
 # 8: 3105329 @ 210s
-benchmark_graph, benchmark_machines = load('graphs/matrix-inputs/input05.txt')
 
-time_start = time.perf_counter()
-benchmark_result = minTime(benchmark_graph, benchmark_machines)
-time_end = time.perf_counter()
-time_duration = time_end - time_start
-print(f'Took {time_duration:.3f} seconds for result {benchmark_result}')
+executions = 100
+
+for i in [6, 5, 8]:
+    path = f'matrix-inputs/input{i:02d}.txt'
+    graf, machines = load(path)
+    import functools
+    def benchmark(g, m):
+        minTime(g, m)
+    p = functools.partial(benchmark, graf, machines)
+    from timeit import timeit
+    print(f'File {path} took avg. time={timeit(p, number=executions) / executions} ms')
