@@ -50,7 +50,7 @@ def pylons(k: int, a: list[int]) -> int:
         if ones[i + 1] - city > 2 * k - 1:
             return -1
     d = {}
-    solution = sys.maxsize
+    solutions = []
     for i, e in enumerate(a):
         # Any solution has to begin in a[0:k]
         if i >= k:
@@ -59,9 +59,8 @@ def pylons(k: int, a: list[int]) -> int:
             continue
         s = pylons_internal(d, i, i + 1, k, a)
         if s is not None:
-            solution = min(s + 1, solution)
-    # print(f'Solutions for k = {k}, a = {a}: {solutions}')
-    return solution if solution < sys.maxsize else -1
+            solutions.append(s + 1)
+    return min(solutions) if solutions else -1
 
 
 # pytest .\algorithms\greedy\pylons.py
