@@ -45,12 +45,15 @@ def pylons(k: int, a: list[int]) -> int:
     k: a city must be at a distance < k from a pylon
     a: a list of cities, 1 denoting pylon-readiness
     '''
-    if not any(a[:k]):
+    ones = [i for i, city in enumerate(a)]
+    if not ones or ones[0] > k or ones[-1] < len(a) - k - 1:
         return -1
-    if not any(a[len(a) - k - 1:]):
-        return -1
+    for i, city in enumerate(ones[:-1]):
+        if ones[i + 1] - city > 2 * k - 1:
+            return -1
     solution = sys.maxsize
     for i, e in enumerate(a):
+        # Any solution has to begin in a[0:k]
         if i >= k:
             break
         if e == 0:
