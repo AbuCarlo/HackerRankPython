@@ -9,10 +9,8 @@ import hypothesis
 import hypothesis.statistics
 import hypothesis.strategies
 
-d = {}
-
 # TODO Create a memo for (previous, position)
-def pylons_internal(i: int, j: int, k: int, a: list[int]) -> int:
+def pylons_internal(d: dict, i: int, j: int, k: int, a: list[int]) -> int:
     while j < len(a) and a[j] == 0:
         j += 1
     if j == len(a):
@@ -22,14 +20,14 @@ def pylons_internal(i: int, j: int, k: int, a: list[int]) -> int:
     key = (i, j)
     if key in d:
         return d[key]
-    yes = pylons_internal(j, j + 1, k, a)
+    yes = pylons_internal(d, j, j + 1, k, a)
     # If we place a pylon here, and still have no
     # solution, there's no point in proceeding.
     # Obviously it would be even worse *not*
     # to place a pylon here.
     if yes is None:
         return None
-    no = pylons_internal(i, j + 1, k, a)
+    no = pylons_internal(d, i, j + 1, k, a)
     solution = None
     if no is None:
         solution = 1 + yes
@@ -51,6 +49,7 @@ def pylons(k: int, a: list[int]) -> int:
     for i, city in enumerate(ones[:-1]):
         if ones[i + 1] - city > 2 * k - 1:
             return -1
+    d = {}
     solution = sys.maxsize
     for i, e in enumerate(a):
         # Any solution has to begin in a[0:k]
@@ -58,7 +57,7 @@ def pylons(k: int, a: list[int]) -> int:
             break
         if e == 0:
             continue
-        s = pylons_internal(i, i + 1, k, a)
+        s = pylons_internal(d, i, i + 1, k, a)
         if s is not None:
             solution = min(s + 1, solution)
     # print(f'Solutions for k = {k}, a = {a}: {solutions}')
@@ -87,7 +86,6 @@ def test_test_cases():
             _, k = f.readline().rstrip().split(' ')
             a = [int(s) for s in f.readline().rstrip().split(' ')]
             assert pylons(int(k), a) == expected
-            
 
 # @hypothesis.given(
 #     hypothesis.strategies.lists(hypothesis.strategies.booleans(), min_size=1, max_size=100)
@@ -105,3 +103,20 @@ def test_test_cases():
 #     cities = [1] * n
 #     assert pylons(n, cities) > 0
 
+# pylint: disable=C0415
+def test_performance():
+    '''Test performance to achieve full score.'''
+    import functools
+    def benchmark(k, a):
+        pylons(k, a)
+
+    executions = 100
+    with open('algorithms/greedy/pylons-inputs/input04.txt', 'r', encoding='UTF-8') as f:
+        _, k = f.readline().rstrip().split(' ')
+        a = [int(s) for s in f.readline().rstrip().split(' ')]
+        p = functools.partial(benchmark, int(k), a)
+        from timeit import timeit
+        perf = timeit(p, number=executions) / executions
+        assert perf < .005
+        # pytest will suppress this output.
+        print(f'File {p} took avg. time={perf} ms')
