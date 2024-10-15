@@ -13,7 +13,6 @@
 from collections import defaultdict
 import heapq
 import sys
-import time
 
 
 class Graph:
@@ -77,7 +76,7 @@ class Graph:
 
         return paths
 
-# pylint: disable=C0103   
+# pylint: disable=C0103 
 def minTime(roads, machines) -> int:
     graph = Graph(roads)
     result = 0
@@ -87,7 +86,7 @@ def minTime(roads, machines) -> int:
     for machine in machines:
         # Since this is an undirected graph, we will not have to
         # find paths to this machine hereafter; we've already found
-        # all paths from it. This step is crucial to passing the 
+        # all paths from it. This step is crucial to passing the
         # assignment in time.
         targets.remove(machine)
         paths = graph.find_shortest_paths(machine, targets)
@@ -147,11 +146,11 @@ print(result0, result1, result2)
 executions = 100
 
 for i in [6, 5, 8]:
-    path = f'matrix-inputs/input{i:02d}.txt'
-    graf, machines = load(path)
+    p = f'matrix-inputs/input{i:02d}.txt'
+    graf, machines = load(p)
     import functools
     def benchmark(g, m):
         minTime(g, m)
     p = functools.partial(benchmark, graf, machines)
     from timeit import timeit
-    print(f'File {path} took avg. time={timeit(p, number=executions) / executions} ms')
+    print(f'File {p} took avg. time={timeit(p, number=executions) / executions} ms')
