@@ -13,6 +13,7 @@ sample = [
 
 def equalStacks(h1, h2, h3):
     '''
+    General solution for any number of stacks of cylinders.
     '''
     # Python's heap is always a min-heap, so we have to invert the key.
     # We only compute the sums once. Compute tuples: heapify() will
@@ -32,3 +33,5 @@ def equalStacks(h1, h2, h3):
     return -stacks[0][0]
 
 print(equalStacks(*sample))
+
+print(equalStacks([5], [4], [3]))
