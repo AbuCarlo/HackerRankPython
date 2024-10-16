@@ -4,36 +4,8 @@ https://www.hackerrank.com/challenges/pylons/problem
 Prepare | Algorithms | Greedy | Goodland Electricity
 '''
 
+import itertools
 import pytest
-
-# pylint: disable=C0116
-def pylons_internal(d: dict, i: int, j: int, k: int, a: list[int]) -> int:
-    while j < len(a) and a[j] == 0:
-        j += 1
-    if j == len(a):
-        return None if j - i > k else 0
-    if j - i > 2 * k - 1:
-        return None
-    key = (i, j)
-    if key in d:
-        return d[key]
-    yes = pylons_internal(d, j, j + 1, k, a)
-    # If we place a pylon here, and still have no
-    # solution, there's no point in proceeding.
-    # Obviously it would be even worse *not*
-    # to place a pylon here.
-    if yes is None:
-        return None
-    no = pylons_internal(d, i, j + 1, k, a)
-    solution = None
-    if no is None:
-        solution = 1 + yes
-    elif no <= yes:
-        solution = no
-    else:
-        solution = 1 + yes
-    d[key] = solution
-    return solution
 
 def pylons(k: int, a: list[int]) -> int:
     '''
@@ -49,20 +21,20 @@ def pylons(k: int, a: list[int]) -> int:
     for i, city in enumerate(ones[:-1]):
         if ones[i + 1] - city > 2 * k - 1:
             return -1
-    d = {}
-    for i in reversed(ones):
-        if i <= k:
-            continue
-        pylons_internal(d, i, i + 1, k, a)
+    # The optimal solution starting from the last city
+    # that can have a pylon is, obviously, 1.
+    d = {ones[-1]: 1}
+    for i in reversed(ones[:-1]):
+        solutions = []
+        for j in range(i + 1, i + 2 * k):
+            if j in d:
+                solutions.append(d[j] + 1)
+        assert solutions
+        d[i] = min(solutions)
 
     solutions = []
-    for i in ones:
-        if i > k:
-            break
-        solution = pylons_internal(d, i, i + 1, k, a)
-        # Add 1 for the pylon at a[i]
-        if solution is not None:
-            solutions.append(solution + 1)
+    for i in itertools.takewhile(lambda i: i < k, ones):
+        solutions.append(d[i])
     assert solutions
     return min(solutions)
 
@@ -80,16 +52,17 @@ samples = [
 
 @pytest.mark.parametrize("k,a,expected", samples)
 def test_samples(k: int, a: list[int], expected: int):
+    '''Examples from HackerRank's problem description'''
     assert pylons(k, a) == expected
-    # assert pylons(int(k), reversed(a)) == expected
+    b = a.copy()
+    b.reverse()
+    assert pylons(int(k), b) == expected
 
 testdata = [
     (4, 28),
     (12, 1206),
     (15, 6864),
-    # Overflows the stack.
     (16, 6),
-    # Returns the wrong answer.
     (19, 17901)
 ]
 
@@ -98,14 +71,17 @@ def test_test_cases(i: tuple[int, int], expected: tuple[int, int]):
     '''Run test cases from dowloaded input files'''
     path = f'algorithms/greedy/pylons-inputs/input{i:02d}.txt'
     with open(path, 'r', encoding='UTF-8') as f:
-        size, k = f.readline().rstrip().split(' ')
+        size, k = [int(s) for s in f.readline().rstrip().split(' ')]
         a = [int(s) for s in f.readline().rstrip().split(' ')]
-        assert len(a) == int(size)
-        assert pylons(int(k), a) == expected
+        assert len(a) == size
+        assert pylons(k, a) == expected
 
-def test_performance(benchmark):
+@pytest.mark.parametrize('i', [4, 16, 19])
+def test_performance(benchmark, i):
     '''Test performance to achieve full score.'''
-    with open('algorithms/greedy/pylons-inputs/input04.txt', 'r', encoding='UTF-8') as f:
+    name = f'input{i:02d}.txt'
+    benchmark.group = f'Performance {name}'
+    with open(f'algorithms/greedy/pylons-inputs/{name}', 'r', encoding='UTF-8') as f:
         _, k = f.readline().rstrip().split(' ')
         a = [int(s) for s in f.readline().rstrip().split(' ')]
         benchmark(pylons, int(k), a)
