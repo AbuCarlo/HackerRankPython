@@ -42,23 +42,36 @@ def getMax(operations: list[str]) -> list[int]:
             result.append(maxima[-1])
     return result
 
-sample = ['1 97', '2', '1 20', '2', '1 26', '1 20', '2', '3', '1 91', '3']
+def test_sample():
+    '''
+    For pytest. The problem only comes with one sample.
+    '''
+    sample = ['1 97', '2', '1 20', '2', '1 26', '1 20', '2', '3', '1 91', '3']
+    actual = getMax(sample)
+    assert actual == [26, 91]
 
-print(getMax(sample)) # [26, 91]
+DOWNLOADS = 'problem-solving/data-structures/stacks/get-max-value-inputs'
 
-# DOWNLOADS = 'problem-solving/data-structures/stacks/get-max-value-inputs'
-DOWNLOADS = './get-max-value-inputs'
-
-
-# pylint: disable=C0116
 def load(i):
-    path = f'{DOWNLOADS}/input{i:02d}.txt'
-    with open(path, 'r', encoding='UTF-8') as f:
+    '''
+    Load matching input and output files downloaded 
+    from the HackerRank problem page.
+    
+    :param i: the number of the problem
+    
+    :return: a tuple of the input values and expected output
+    '''
+    input_path = f'{DOWNLOADS}/input{i:02d}.txt'
+    with open(input_path, 'r', encoding='UTF-8') as f:
         size = int(f.readline().rstrip())
         operations = f.readlines()
         assert len(operations) == size
-        return operations
+    output_path = f'{DOWNLOADS}/output{i:02d}.txt'
+    with open(output_path, 'r', encoding='UTF-8') as f:
+        maxima = [int(l) for l in f.readlines()]
+    return (operations, maxima)
 
-problem = load(4)
-actual = getMax(problem)
-print(actual)
+def test_test_case(benchmark):
+    operations, expected = load(4)
+    actual = benchmark(getMax, operations)
+    assert actual == expected
