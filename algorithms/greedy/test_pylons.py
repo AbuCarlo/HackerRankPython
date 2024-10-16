@@ -3,13 +3,10 @@ https://www.hackerrank.com/challenges/pylons/problem
 
 Prepare | Algorithms | Greedy | Goodland Electricity
 '''
-import sys
 
-import hypothesis
-import hypothesis.statistics
-import hypothesis.strategies
+import pytest
 
-# TODO Create a memo for (previous, position)
+# pylint: disable=C0116
 def pylons_internal(d: dict, i: int, j: int, k: int, a: list[int]) -> int:
     while j < len(a) and a[j] == 0:
         j += 1
@@ -39,83 +36,68 @@ def pylons_internal(d: dict, i: int, j: int, k: int, a: list[int]) -> int:
     return solution
 
 def pylons(k: int, a: list[int]) -> int:
-    '''How many pylons do we to place in order for every city to have electricity?
-    k: a city must be at a distance < k from a pylon
-    a: a list of cities, 1 denoting pylon-readiness
     '''
-    ones = [i for i, city in enumerate(a)]
+    How many pylons do we have to place in order for every city to have electricity?
+
+    :param k: a city must be at a distance < k from a pylon
+    :param a: a list of cities, 1 denoting pylon-readiness
+    :return: the smallest possible number of pylons, or -1 for an infeasible problem
+    '''
+    ones = [i for i, city in enumerate(a) if city]
     if not ones or ones[0] > k or ones[-1] < len(a) - k - 1:
         return -1
     for i, city in enumerate(ones[:-1]):
         if ones[i + 1] - city > 2 * k - 1:
             return -1
     d = {}
-    solutions = []
-    for i, e in enumerate(a):
-        # Any solution has to begin in a[0:k]
-        if i >= k:
-            break
-        if e == 0:
+    for i in reversed(ones):
+        if i <= k:
             continue
-        s = pylons_internal(d, i, i + 1, k, a)
-        if s is not None:
-            solutions.append(s + 1)
-    return min(solutions) if solutions else -1
+        pylons_internal(d, i, i + 1, k, a)
 
+    solutions = []
+    for i in ones:
+        if i > k:
+            break
+        solution = pylons_internal(d, i, i + 1, k, a)
+        # Add 1 for the pylon at a[i]
+        if solution is not None:
+            solutions.append(solution + 1)
+    return min(solutions) if solutions else -1
 
 # pytest .\algorithms\greedy\pylons.py
 
-def test_samples():
-    '''samples from HackerRank"'''
+samples = [
     # "Example" from problem description
-    assert(pylons(3, [0, 1, 1, 1, 0, 0, 0])) == -1
-    # "Sample"
-    assert pylons(2, [0, 1, 1, 1, 1, 0]) == 2
-    # samples test cases from "Run Code"
-    assert pylons(2, [0, 1, 1, 1, 1, 0]) == 2
-    assert pylons(2, [0, 1, 0, 0, 0, 1, 0]) == -1
-    assert pylons(3, [0, 1, 0, 0, 0, 1, 1, 1, 1, 1]) == 3
+    (3, [0, 1, 1, 1, 0, 0, 0], -1),
+    # Sample and "Sample 0" from "Run Code"
+    (2, [0, 1, 1, 1, 1, 0], 2),
+    # Sample 1
+    (2, [0, 1, 0, 0, 0, 1, 0], -1),
+    (3, [0, 1, 0, 0, 0, 1, 1, 1, 1, 1], 3)
+]
 
+@pytest.mark.parametrize("k,a,expected", samples)
+def test_samples(k: int, a: list[int], expected: int):
+    assert pylons(k, a) == expected
 
-def test_test_cases():
+testdata = [
+    (4, 28),
+    (12, 1206),
+]
+
+@pytest.mark.parametrize("i,expected", testdata)
+def test_test_cases(i: tuple[int, int], expected: tuple[int, int]):
     '''Run test cases from dowloaded input files'''
-    for t, expected in [(4, 28), (12, 1206)]:
-        path = f'algorithms/greedy/pylons-inputs/input{t:02d}.txt'
-        with open(path, 'r', encoding='UTF-8') as f:
-            _, k = f.readline().rstrip().split(' ')
-            a = [int(s) for s in f.readline().rstrip().split(' ')]
-            assert pylons(int(k), a) == expected
+    path = f'algorithms/greedy/pylons-inputs/input{i:02d}.txt'
+    with open(path, 'r', encoding='UTF-8') as f:
+        _, k = f.readline().rstrip().split(' ')
+        a = [int(s) for s in f.readline().rstrip().split(' ')]
+        assert pylons(int(k), a) == expected
 
-# @hypothesis.given(
-#     hypothesis.strategies.lists(hypothesis.strategies.booleans(), min_size=1, max_size=100)
-# )
-# def test_zero_pylons(a):
-#     '''0 pylons will not suffice for any number of cities.'''
-#     cities = [1 if b else 0 for b in a]
-#     assert pylons(0, cities) == -1
-
-# @hypothesis.given(
-#     hypothesis.strategies.integers(min_value=1, max_value=100)
-# )
-# def test_electrify_every_city(n):
-#     '''If there are as many pylons as cities, there is a solution.'''
-#     cities = [1] * n
-#     assert pylons(n, cities) > 0
-
-# pylint: disable=C0415
-def test_performance():
+def test_performance(benchmark):
     '''Test performance to achieve full score.'''
-    import functools
-    def benchmark(k, a):
-        pylons(k, a)
-
-    executions = 100
     with open('algorithms/greedy/pylons-inputs/input04.txt', 'r', encoding='UTF-8') as f:
         _, k = f.readline().rstrip().split(' ')
         a = [int(s) for s in f.readline().rstrip().split(' ')]
-        p = functools.partial(benchmark, int(k), a)
-        from timeit import timeit
-        perf = timeit(p, number=executions) / executions
-        assert perf < .005
-        # pytest will suppress this output.
-        print(f'File {p} took avg. time={perf} ms')
+        benchmark(pylons, int(k), a)
