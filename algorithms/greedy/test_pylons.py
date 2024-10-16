@@ -84,6 +84,9 @@ def test_samples(k: int, a: list[int], expected: int):
 testdata = [
     (4, 28),
     (12, 1206),
+    (15, 6864),
+    (16, 6),
+    (19, 17901)
 ]
 
 @pytest.mark.parametrize("i,expected", testdata)
