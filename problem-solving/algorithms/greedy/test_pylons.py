@@ -38,8 +38,6 @@ def pylons(k: int, a: list[int]) -> int:
     assert solutions
     return min(solutions)
 
-# pytest .\algorithms\greedy\pylons.py
-
 samples = [
     # "Example" from problem description
     (3, [0, 1, 1, 1, 0, 0, 0], -1),
@@ -66,20 +64,25 @@ testdata = [
     (19, 17901)
 ]
 
+CURRENT_DIRECTORY = 'problem-solving/algorithms/greedy'
+
 @pytest.mark.parametrize("i,expected", testdata)
 def test_test_cases(i: tuple[int, int], expected: tuple[int, int]):
     '''Run test cases from dowloaded input files'''
-    path = f'algorithms/greedy/pylons-inputs/input{i:02d}.txt'
+    path = f'{CURRENT_DIRECTORY}/pylons-inputs/input{i:02d}.txt'
     with open(path, 'r', encoding='UTF-8') as f:
         size, k = [int(s) for s in f.readline().rstrip().split(' ')]
         a = [int(s) for s in f.readline().rstrip().split(' ')]
         assert len(a) == size
         assert pylons(k, a) == expected
 
+
 @pytest.mark.parametrize('name', [f'input{i:02d}.txt' for i in [4, 16, 19]])
 def test_performance(benchmark, name):
     '''Test performance to achieve full score.'''
-    with open(f'algorithms/greedy/pylons-inputs/{name}', 'r', encoding='UTF-8') as f:
-        _, k = f.readline().rstrip().split(' ')
+    path = f'{CURRENT_DIRECTORY}/pylons-inputs/{name}'
+    with open(path, 'r', encoding='UTF-8') as f:
+        size, k = [int(s) for s in f.readline().rstrip().split(' ')]
         a = [int(s) for s in f.readline().rstrip().split(' ')]
+        assert len(a) == size
         benchmark(pylons, int(k), a)
