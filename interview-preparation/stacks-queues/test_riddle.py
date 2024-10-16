@@ -5,6 +5,9 @@
     minimum(s) of every window size in the array"
 '''
 
+import pytest
+
+
 class RunByValue:
     def __init__(self, value, length):
         self.value = value
@@ -23,7 +26,7 @@ def find_runs(values):
         if value > stack[0].value:
             stack.appendleft(RunByValue(value, 1))
             continue
-        
+
         pair = RunByValue(value, 1)
         length = 0
         # While the current value is less than the minimum in this run...
@@ -64,22 +67,25 @@ def riddle(v):
         result.append(inverted[k])
 
     import itertools
-    result = list(itertools.accumulate(reversed(result), func=lambda l,r: max(l, r)))
+    result = list(itertools.accumulate(reversed(result), func=max))
     result.reverse()
     return result
 
+SAMPLES = [
+    # sample from problem statement
+    ( [2, 6, 1, 12], [12, 2, 1, 1]),
+    # Sample 1
+    ([1, 2, 3, 5, 1, 13, 3], [13, 3, 2, 1, 1, 1, 1]),
+    # Sample 1
+    ([ 3, 5, 4, 7, 6, 2 ], [7, 6, 4, 4, 3, 2]),
+    # Test Case 05
+    #([789168277, 694294362, 532144299, 20472621, 316665904, 59654039, 685958445, 925819184, 371690486, 285650353, 522515445, 624800694, 396417773, 467681822, 964079876, 355847868, 424895284, 50621903, 728094833, 535436067, 221600465, 832169804, 641711594, 518285605, 235027997, 904664230, 223080251, 337085579, 5125280, 448775176, 831453463, 550142629, 822686012, 555190916, 911857735, 144603739, 751265137, 274554418, 450666269, 984349810, 716998518, 949717950, 313190920, 600769443, 140712186, 218387168, 416515873, 194487510, 149671312, 241556542, 575727819, 873823206], 0)
+]
+
 sample_input = [2, 6, 1, 12]
 
-#print(riddle(sample_input))
-
-# sample 1
-# print(riddle([1, 2, 3, 5, 1, 13, 3]))
-
-# sample 2
-print(riddle([ 3, 5, 4, 7, 6, 2 ]))
-
-# print(riddle(list(range(1, 6))))
-
-test_case_05 = [789168277, 694294362, 532144299, 20472621, 316665904, 59654039, 685958445, 925819184, 371690486, 285650353, 522515445, 624800694, 396417773, 467681822, 964079876, 355847868, 424895284, 50621903, 728094833, 535436067, 221600465, 832169804, 641711594, 518285605, 235027997, 904664230, 223080251, 337085579, 5125280, 448775176, 831453463, 550142629, 822686012, 555190916, 911857735, 144603739, 751265137, 274554418, 450666269, 984349810, 716998518, 949717950, 313190920, 600769443, 140712186, 218387168, 416515873, 194487510, 149671312, 241556542, 575727819, 873823206]
-
-# print(riddle(test_case_05))
+@pytest.mark.parametrize("v,expected", SAMPLES)
+def test_samples(v: list[int], expected: list[int]):
+    '''Examples from HackerRank's problem description'''
+    actual = riddle(v)
+    assert actual == expected

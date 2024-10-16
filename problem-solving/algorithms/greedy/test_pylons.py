@@ -67,7 +67,7 @@ testdata = [
 CURRENT_DIRECTORY = 'problem-solving/algorithms/greedy'
 
 @pytest.mark.parametrize("i,expected", testdata)
-def test_test_cases(i: tuple[int, int], expected: tuple[int, int]):
+def test_test_cases(i, expected):
     '''Run test cases from dowloaded input files'''
     path = f'{CURRENT_DIRECTORY}/pylons-inputs/input{i:02d}.txt'
     with open(path, 'r', encoding='UTF-8') as f:
