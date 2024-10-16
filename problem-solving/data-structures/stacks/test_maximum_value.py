@@ -20,25 +20,45 @@ def getMax(operations: list[str]) -> list[int]:
     2    -Delete the element present at the top of the stack.
     3    -Print the maximum element in the stack.
     '''
-    stack_of_stacks = collections.deque()
+    maxima = collections.deque()
+    counts = collections.deque()
     result = []
     ops = [[int(s) for s in o.split(' ')] for o in operations]
     for op in ops:
         if op[0] == 1:
             n = op[1]
-            if not stack_of_stacks or n > stack_of_stacks[-1][0]:
-                stack = collections.deque([n])
-                stack_of_stacks.append(stack)
+            if not maxima or n > maxima[-1]:
+                maxima.append(n)
+                counts.append(1)
             else:
-                stack.append(op[1])
+                counts[-1] += 1
         elif op[0] == 2:
-            stack_of_stacks[-1].pop()
-            if not stack_of_stacks[-1]:
-                stack_of_stacks.pop()
+            assert counts
+            counts[-1] -= 1
+            if counts[-1] == 0:
+                counts.pop()
+                maxima.pop()
         else:
-            result.append(stack_of_stacks[-1][0])
+            result.append(maxima[-1])
     return result
 
 sample = ['1 97', '2', '1 20', '2', '1 26', '1 20', '2', '3', '1 91', '3']
 
-print(getMax(sample))
+print(getMax(sample)) # [26, 91]
+
+# DOWNLOADS = 'problem-solving/data-structures/stacks/get-max-value-inputs'
+DOWNLOADS = './get-max-value-inputs'
+
+
+# pylint: disable=C0116
+def load(i):
+    path = f'{DOWNLOADS}/input{i:02d}.txt'
+    with open(path, 'r', encoding='UTF-8') as f:
+        size = int(f.readline().rstrip())
+        operations = f.readlines()
+        assert len(operations) == size
+        return operations
+
+problem = load(4)
+actual = getMax(problem)
+print(actual)
