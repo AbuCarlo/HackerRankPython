@@ -14,8 +14,14 @@ from collections import defaultdict
 import heapq
 import sys
 
+import pytest
+
 
 class Graph:
+    '''
+    An undirected graph represented as adjacency matrix using maps.
+    Each edge is duplicated.
+    '''
     def __init__(self, cities):
         self.order = max(max(e[0], e[1]) for e in cities) + 1
         self.adjacency = defaultdict(lambda: {})
@@ -130,27 +136,37 @@ def load(file):
 
         return roads, machines
 
+samples = [
+    # Sample 0 / Test Case 0
+    ([[2, 1, 8], [1, 0, 5], [2, 4, 5], [1, 3, 4]], [2, 4, 0], 10),
+    # Sample 1
+    ([[0, 1, 4], [1, 2, 3], [1, 3, 7], [0, 4, 2]], [2, 3, 4], 5),
+    # Sample 2
+    ([[0, 3, 3], [1, 4, 4], [1, 3, 4], [0, 2, 5]], [1, 3, 4], 8)
+]
 
-# Sample 0 / Test Case 0
-result0 = minTime([[2, 1, 8], [1, 0, 5], [2, 4, 5], [1, 3, 4]], [2, 4, 0])
-# Sample 1
-result1 = minTime([[0, 1, 4], [1, 2, 3], [1, 3, 7], [0, 4, 2]], [2, 3, 4])
-# Sample 2
-result2 = minTime([[0, 3, 3], [1, 4, 4], [1, 3, 4], [0, 2, 5]], [1, 3, 4])
+@pytest.mark.parametrize("r, m, expected", samples)
+def test_examples(r, m, expected):
+    '''
+    Samples from problem description and "Run Code"
+    '''
+    actual = minTime(r, m)
+    assert actual == expected
 
-print(result0, result1, result2)
-# 6: 492394728
-# 5: 28453895 @ 4s
-# 8: 3105329 @ 210s
+test_cases = [
+    (5, 28453895),
+    (6, 492394728),
+    (8, 3105329)
+]
 
-executions = 100
+CURRENT_DIRECTORY = 'interview-preparation/graphs'
 
-for i in [6, 5, 8]:
-    p = f'matrix-inputs/input{i:02d}.txt'
+@pytest.mark.parametrize("i, expected", test_cases)
+def test_test_cases(benchmark, i, expected):
+    '''
+    Test cases from HackerRank
+    '''
+    p = f'{CURRENT_DIRECTORY}/matrix-inputs/input{i:02d}.txt'
     graf, machines = load(p)
-    import functools
-    def benchmark(g, m):
-        minTime(g, m)
-    p = functools.partial(benchmark, graf, machines)
-    from timeit import timeit
-    print(f'File {p} took avg. time={timeit(p, number=executions) / executions} ms')
+    actual = benchmark(minTime, graf, machines)
+    assert actual == expected
