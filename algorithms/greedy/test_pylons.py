@@ -26,11 +26,11 @@ def pylons(k: int, a: list[int]) -> int:
     d = {ones[-1]: 1}
     for i in reversed(ones[:-1]):
         solutions = []
-        for j in range(i + 1, i + 2 * k):
+        # The furthest pylon provides the optimal subsolution.
+        for j in range(i + 2 * k -1, i, -1):
             if j in d:
-                solutions.append(d[j] + 1)
-        assert solutions
-        d[i] = min(solutions)
+                d[i] = d[j] + 1
+                break
 
     solutions = []
     for i in itertools.takewhile(lambda i: i < k, ones):
@@ -76,11 +76,9 @@ def test_test_cases(i: tuple[int, int], expected: tuple[int, int]):
         assert len(a) == size
         assert pylons(k, a) == expected
 
-@pytest.mark.parametrize('i', [4, 16, 19])
-def test_performance(benchmark, i):
+@pytest.mark.parametrize('name', [f'input{i:02d}.txt' for i in [4, 16, 19]])
+def test_performance(benchmark, name):
     '''Test performance to achieve full score.'''
-    name = f'input{i:02d}.txt'
-    benchmark.group = f'Performance {name}'
     with open(f'algorithms/greedy/pylons-inputs/{name}', 'r', encoding='UTF-8') as f:
         _, k = f.readline().rstrip().split(' ')
         a = [int(s) for s in f.readline().rstrip().split(' ')]
