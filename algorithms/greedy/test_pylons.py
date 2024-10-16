@@ -44,7 +44,7 @@ def pylons(k: int, a: list[int]) -> int:
     :return: the smallest possible number of pylons, or -1 for an infeasible problem
     '''
     ones = [i for i, city in enumerate(a) if city]
-    if not ones or ones[0] > k or ones[-1] < len(a) - k - 1:
+    if not ones or ones[0] >= k or ones[-1] + k - 1 < len(a) -1:
         return -1
     for i, city in enumerate(ones[:-1]):
         if ones[i + 1] - city > 2 * k - 1:
@@ -63,7 +63,8 @@ def pylons(k: int, a: list[int]) -> int:
         # Add 1 for the pylon at a[i]
         if solution is not None:
             solutions.append(solution + 1)
-    return min(solutions) if solutions else -1
+    assert solutions
+    return min(solutions)
 
 # pytest .\algorithms\greedy\pylons.py
 
@@ -80,6 +81,7 @@ samples = [
 @pytest.mark.parametrize("k,a,expected", samples)
 def test_samples(k: int, a: list[int], expected: int):
     assert pylons(k, a) == expected
+    # assert pylons(int(k), reversed(a)) == expected
 
 testdata = [
     (4, 28),
