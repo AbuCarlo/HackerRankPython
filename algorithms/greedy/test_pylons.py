@@ -85,7 +85,9 @@ testdata = [
     (4, 28),
     (12, 1206),
     (15, 6864),
+    # Overflows the stack.
     (16, 6),
+    # Returns the wrong answer.
     (19, 17901)
 ]
 
@@ -94,8 +96,9 @@ def test_test_cases(i: tuple[int, int], expected: tuple[int, int]):
     '''Run test cases from dowloaded input files'''
     path = f'algorithms/greedy/pylons-inputs/input{i:02d}.txt'
     with open(path, 'r', encoding='UTF-8') as f:
-        _, k = f.readline().rstrip().split(' ')
+        size, k = f.readline().rstrip().split(' ')
         a = [int(s) for s in f.readline().rstrip().split(' ')]
+        assert len(a) == int(size)
         assert pylons(int(k), a) == expected
 
 def test_performance(benchmark):
