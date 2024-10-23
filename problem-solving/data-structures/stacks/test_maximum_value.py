@@ -72,6 +72,9 @@ def load(i):
     return (operations, maxima)
 
 def test_test_case(benchmark):
+    '''
+    Benchmark HackerRank's test cases for full score.
+    '''
     operations, expected = load(4)
     actual = benchmark(getMax, operations)
     assert actual == expected
