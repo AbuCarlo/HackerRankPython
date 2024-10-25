@@ -58,9 +58,11 @@ def heap_insert(h: list, n: int):
     i = 0
     while True:
         if i >= len(h):
-            h.extend([None] * (len(h) + i + 1))
+            # 0, 1, 3, 7, 15, ...
+            h.extend([None] * (len(h) + 1))
         # We've never encountered n.
         if h[i] is None:
+            # Implement the swap algorithm.
             h[i] = (n, 1, 0)
             return result
         elif h[i][1] == n:
@@ -132,3 +134,71 @@ def test_unique(a):
     print(a)
     a.sort()
     assert True
+
+
+def make_bst(l: list[int]):
+    if not l:
+        return []
+    # A perfectly balanced tree will have a
+    # size 2^n - 1 for some n. We want to round
+    # len() up to a power of 2, unless it's
+    # already a power of 2, in which case
+    # we need to round it up one more time.
+    size = (1 << (len(l) + 1).bit_length() - 1) - 1
+    root = size // 2
+    width = (size + 1) // 2
+    bst = [0] * len(l)
+    bst[0] = l[root]
+    i = 0
+    while width > 1:
+        for j in range((width // 2) - 1, len(l), width):
+            # This happens on the first iteration.
+            if j == root:
+                continue
+            bst[i + 1] = l[j]
+            i += 1
+        width //= 2
+    return bst
+
+
+def traverse_bst_internal(bst: list[int], i: int, l: list[int]):
+    if i >= len(bst):
+        return
+    traverse_bst_internal(bst, 2 * i + 1, l)
+    l.append(bst[i])
+    traverse_bst_internal(bst, 2 * i + 2, l)
+
+
+def traverse_bst(bst: list[int]):
+    if not bst:
+        return []
+    l = []
+    traverse_bst_internal(bst, 0, l)
+    return l
+
+@hypothesis.given(hypothesis.strategies.lists(hypothesis.strategies.integers(min_value=1, max_value=10000000), min_size=1, max_size=100000))
+def test_bst_round_trip(l: list[int]):
+    '''
+    Verify that an BST represents the original array by 
+    depth-first traversal. The limits above are from the 
+    original problem.
+    '''
+    l.sort()
+    bst = make_bst(l)
+    actual = traverse_bst(bst)
+    assert l == actual
+
+SAMPLES = [
+    ([], []),
+    ([1], [1]),
+    ([1, 2, 3], [2, 1, 3]),
+    (list(range(1, 8)), [4, 2, 6, 1, 3, 5, 7]),
+    (list(range(1, 16)), [8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15])
+]
+
+@pytest.mark.parametrize("l,bst", SAMPLES)
+
+def test_bst_simple(l: list[int], bst: list[int]):
+    # Edge cases, and simple versions that I worked out with paper and pencil.
+    assert traverse_bst(bst) == l
+    assert make_bst(l) == bst
