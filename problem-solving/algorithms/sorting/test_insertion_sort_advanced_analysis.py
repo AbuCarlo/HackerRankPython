@@ -63,26 +63,48 @@ def make_bst(l: Iterable[int]):
     '''
     if not l:
         return []
+
+    size = calculate_tree_size(len(l))
+    bst = [None] * size
+
+    def make_bst_internal(i: int, j: int, jump: int):
+        # Comment.
+        if i >= 0 and i < len(l):
+            assert bst[j] is None
+            bst[j] = l[i]
+        if jump == 0:
+            return
+        make_bst_internal(i - jump, 2 * j + 1, jump // 2)
+        make_bst_internal(i + jump, 2 * j + 2, jump // 2)
+
+    make_bst_internal(len(l) // 2, 0, (size + 1) // 4)
+
+    # Now path-reduce.
+
     # No, this won't work. We can't have None in the tree,
     # or comparisons will fail.
-    size = calculate_tree_size(len(l))
-    root = size // 2
-    jump = (size + 1) // 2
-    # This facilitates assertions. There should be no None in the BST.
-    bst = [None] * size
-    bst[0] = l[root]
-    start = 1
-    while jump > 1:
-        i = (1 << start) - 1
-        for j in range((jump // 2) - 1, size, jump):
-            # This happens on the first iteration.
-            if j == root:
-                continue
-            if j < len(l):
-                bst[i] = l[j]
-            i += 1
-        jump //= 2
-        start += 1
+
+    def reduce_path_internal(i):
+        if i >= len(bst):
+            return
+        reduce_path_internal(2 * i + 1)
+        reduce_path_internal(2 * i + 2)
+        if bst[i] is None:
+            j = 2 * i + 1
+            if j >= len(bst):
+                return
+            if bst[j] is not None:
+                bst[i], bst[j] = bst[j], None
+            elif j + 1 <= len(bst):
+                bst[i], bst[j + 1] = bst[j + 1], None
+
+
+    reduce_path_internal(0)
+    assert all([v is None for v in bst[len(l):]])
+    del bst[len(l):]
+
+    # Invariant: None is at end. Truncate?
+
     return bst
 
 def traverse_bst(bst: list[int]):
@@ -104,11 +126,6 @@ def traverse_bst(bst: list[int]):
 
     return l
 
-samples = [
-    ([1, 1, 1, 2, 2], 0),
-    ([2, 1, 3, 1, 2], 4)
-]
-
 # Stolen / learned from https://stackoverflow.com/a/73810689/476942
 @hypothesis.strategies.composite
 def unique_integers(draw):
@@ -125,7 +142,12 @@ def unique_integers(draw):
         )
     )
 
-@pytest.mark.parametrize("a, expected", samples)
+HACKER_RANK_SAMPLES = [
+    ([1, 1, 1, 2, 2], 0),
+    ([2, 1, 3, 1, 2], 4)
+]
+
+@pytest.mark.parametrize("a, expected", HACKER_RANK_SAMPLES)
 def test_samples(a: list[int], expected: int):
     '''
     Test samples and test cases from HackerRank.
