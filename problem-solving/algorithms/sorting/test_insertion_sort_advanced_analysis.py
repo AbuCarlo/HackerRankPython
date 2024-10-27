@@ -12,9 +12,9 @@ import pytest
 # pylint: disable=C0103
 def insertionSort(a):
     '''
-    Count the number of swaps that an insertion sort on this 
+    Count the number of swaps that an insertion sort on this
     array would require.
-    
+
     :param a: an unsorted array to be sorted
     :returns: the number of swaps
     '''
@@ -60,20 +60,25 @@ def make_bst(l: Iterable[int]):
     '''
     if not l:
         return []
+    # No, this won't work. We can't have None in the tree,
+    # or comparisons will fail.
     size = calculate_tree_size(len(l))
     root = size // 2
-    width = root + 1
+    jump = (size + 1) // 2
+    # This facilitates assertions. There should be no None in the BST.
     bst = [None] * size
     bst[0] = l[root]
-    i = 0
-    while width > 1:
-        for j in range((width // 2) - 1, size, width):
+    start = 1
+    while jump > 1:
+        i = (1 << start) - 1
+        for j in range((jump // 2) - 1, len(l), jump):
             # This happens on the first iteration.
             if j == root:
                 continue
-            bst[i + 1] = l[j]
+            bst[i] = l[j]
             i += 1
-        width //= 2
+        jump //= 2
+        start += 1
     return bst
 
 def traverse_bst(bst: list[int]):
@@ -81,15 +86,14 @@ def traverse_bst(bst: list[int]):
     Return a new list representing the depth-first
     traversal of the BST.
     '''
-    if not bst:
-        return []
     l = []
 
     def traverse_bst_internal(i: int):
         if i >= len(bst):
             return
         traverse_bst_internal(2 * i + 1)
-        l.append(bst[i])
+        if bst[i] is not None:
+            l.append(bst[i])
         traverse_bst_internal(2 * i + 2)
 
     traverse_bst_internal(0)
@@ -110,9 +114,10 @@ def unique_integers(draw):
     s = set()
     return draw(
         hypothesis.strategies.lists(
-        hypothesis.strategies.integers()
-        .filter(lambda n: s.add(n) is None),
-        min_size=1
+        hypothesis.strategies.integers(min_value=1, max_value=10000000)
+        .filter(lambda n: n not in s)
+        .map(lambda n: s.add(n) or n),
+        min_size=1, max_size=10000
         )
     )
 
@@ -126,7 +131,7 @@ def test_samples(a: list[int], expected: int):
 @hypothesis.given(a=unique_integers())
 def test_unique(a):
     '''
-    A sorted list should require 0 swaps. 
+    A sorted list should require 0 swaps.
     That list reversed should require (|a| - 1) * (|a| - 2),
     since the algorithm begins on the second element.
     '''
@@ -148,10 +153,10 @@ def test_sorted_input(l: list[int]):
 @hypothesis.given(l=unique_integers())
 def test_bst_round_trip(l):
     '''
-    Verify that an BST represents the original array by 
-    depth-first traversal. The limits above are from the 
+    Verify that an BST represents the original array by
+    depth-first traversal. The limits above are from the
     original problem. We've implemented the BST to *count*
-    duplicates, so we have to start from an array of 
+    duplicates, so we have to start from an array of
     unique values.
     '''
     l.sort()
@@ -162,8 +167,9 @@ def test_bst_round_trip(l):
 SAMPLES = [
     ([], []),
     ([1], [1]),
-    ([1,2], [2, 1]),
+    ([1,2], [2, 1, None]),
     ([1, 2, 3], [2, 1, 3]),
+    ([1, 2, 3, 4], [4, 2, None, 1, 3, None, None]),
     (list(range(1, 8)), [4, 2, 6, 1, 3, 5, 7]),
     (list(range(1, 16)), [8, 4, 12, 2, 6, 10, 14, 1, 3, 5, 7, 9, 11, 13, 15])
 ]
@@ -191,7 +197,7 @@ def test_test_cases(l, expected):
     '''
     actual = insertionSort(l)
     assert actual == expected
-    
+
 TREE_SIZE_SAMPLES = [
     (1, 1),
     (2, 3),
