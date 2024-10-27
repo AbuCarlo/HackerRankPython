@@ -2,9 +2,6 @@
 https://www.hackerrank.com/challenges/insertion-sort/problem
 '''
 
-import collections
-from collections.abc import Iterable
-
 import hypothesis
 import hypothesis.strategies
 import pytest
@@ -12,18 +9,25 @@ import pytest
 class _Node():
     def __init__(self, value):
         self.value = value
-        self.count = 0
+        # the size of any subtree.
         self.size = 1
+        # the number of times a value has appeared
+        self.count = 0
+        # the sum of "count" for this entire subtree
+        self.traversals = 0
         self.left = None
         self.right = None
-        
-    def addLeftChild(self, node):
+
+    def __repr__(self):
+        return f'_Node(value: {self.value}, size: {self.size}, count: {self.count}, traversals: {self.traversals})'
+
+    def add_left_child(self, node):
         assert self.left is None
         self.left = node
         if node is not None:
             self.size += node.size
-    
-    def addRightChild(self, node):
+
+    def add_right_child(self, node):
         assert self.right is None
         self.right = node
         if node is not None:
@@ -31,9 +35,13 @@ class _Node():
 
 
 def create_bst(l: list[int]):
+    '''
+    Turn a list of integers into a binary search tree
+    of all the unique values in the list.
+    '''
     assert l is not None
     assert len(l) > 0
-    
+
     values = list(sorted(set(l)))
 
     def create_bst_internal(i: int, j: int):
@@ -41,15 +49,13 @@ def create_bst(l: list[int]):
         if j == i:
             return None
         if j - i == 1:
-            print(f'Node({values[i]})')
             return _Node(values[i])
         midpoint = (j + i) // 2
-        print(f'Node({values[midpoint]})')
         root = _Node(values[midpoint])
         left = create_bst_internal(i, midpoint)
         right = create_bst_internal(midpoint + 1, j)
-        root.addLeftChild(left)
-        root.addRightChild(right)
+        root.add_left_child(left)
+        root.add_right_child(right)
         assert root.size == j - i
         return root
 
@@ -83,21 +89,33 @@ def insertionSort(a):
     :param a: an unsorted array to be sorted
     :returns: the number of swaps
     '''
-    counts = collections.defaultdict(int)
-    swaps = 0
     bst = create_bst(sorted(set(a)))
 
+    swaps = 0
+
     for n in a:
-        i = 0
-        while bst[i] != n:
-            # Does n have to swap with a larger value?
-            if bst[i] is None:
-                i = 2 * i + 1
-                continue
-            if n < bst[i]:
-                swaps += counts[bst[i]]
-            i = 2 * i + 1 if n < bst[i] else 2 * i + 2
-        counts[n] += 1
+        node = bst
+        swaps_for_n = 0
+        while node.value != n:
+            assert node is not None
+            # We know that we're adding *some* instance to this subtree.
+            node.traversals += 1
+            if n < node.value:
+                # The subtree to the right has all values > n.
+                # Include the current node in the swaps. Exclude
+                # the current node (i.e. subtract the 1 we just added).
+                swaps_for_n += node.traversals - 1 - node.left.traversals
+                node = node.left
+            else:
+                node = node.right
+
+        node.count += 1
+        node.traversals += 1
+        # Are there remaining values > n that would have to be traversed?
+        if node.right is not None:
+            swaps_for_n += node.right.traversals
+        swaps += swaps_for_n
+
     return swaps
 
 # Stolen / learned from https://stackoverflow.com/a/73810689/476942
@@ -116,17 +134,6 @@ def unique_integers(draw):
         )
     )
 
-HACKER_RANK_SAMPLES = [
-    ([1, 1, 1, 2, 2], 0),
-    ([2, 1, 3, 1, 2], 4)
-]
-
-@pytest.mark.parametrize("a, expected", HACKER_RANK_SAMPLES)
-def test_samples(a: list[int], expected: int):
-    '''
-    Test samples and test cases from HackerRank.
-    '''
-    assert insertionSort(a) == expected
 
 @hypothesis.given(hypothesis.strategies.lists(hypothesis.strategies.integers(min_value=1, max_value=10000000), min_size=1, max_size=100000))
 def test_sorted_input(l: list[int]):
@@ -154,10 +161,13 @@ def test_bst_round_trip(l):
 
 
 _HACKER_RANK_SAMPLES = [
-    # samples
+    # Sample Test Case 0
     ([1, 1, 1, 2, 2], 0),
-    ([2, 1, 3, 1, 2], 4)
-    # test cases
+    ([2, 1, 3, 1, 2], 4),
+    # Sample Test Case 1
+    ([12, 15, 1, 5, 6, 14, 11], 10),
+    ([3, 5, 7, 11, 9], 1)
+    # 
 ]
 
 @pytest.mark.parametrize("l,expected", _HACKER_RANK_SAMPLES)
