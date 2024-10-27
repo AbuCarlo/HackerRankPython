@@ -26,6 +26,9 @@ def insertionSort(a):
         i = 0
         while bst[i] != n:
             # Does n have to swap with a larger value?
+            if bst[i] is None:
+                i = 2 * i + 1
+                continue
             if n < bst[i]:
                 swaps += counts[bst[i]]
             i = 2 * i + 1 if n < bst[i] else 2 * i + 2
@@ -71,11 +74,12 @@ def make_bst(l: Iterable[int]):
     start = 1
     while jump > 1:
         i = (1 << start) - 1
-        for j in range((jump // 2) - 1, len(l), jump):
+        for j in range((jump // 2) - 1, size, jump):
             # This happens on the first iteration.
             if j == root:
                 continue
-            bst[i] = l[j]
+            if j < len(l):
+                bst[i] = l[j]
             i += 1
         jump //= 2
         start += 1
@@ -127,18 +131,6 @@ def test_samples(a: list[int], expected: int):
     Test samples and test cases from HackerRank.
     '''
     assert insertionSort(a) == expected
-
-@hypothesis.given(a=unique_integers())
-def test_unique(a):
-    '''
-    A sorted list should require 0 swaps.
-    That list reversed should require (|a| - 1) * (|a| - 2),
-    since the algorithm begins on the second element.
-    '''
-    print(a)
-    a.sort()
-    assert True
-
 
 @hypothesis.given(hypothesis.strategies.lists(hypothesis.strategies.integers(min_value=1, max_value=10000000), min_size=1, max_size=100000))
 def test_sorted_input(l: list[int]):
