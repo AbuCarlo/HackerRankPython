@@ -24,7 +24,7 @@ def connectedCell(matrix):
         if (0, column + 1) in neighbors:
             neighbors[key] = neighbors[(0, column + 1)]
     for row in range(1, len(matrix)):
-        for column in range(0, len(matrix[row]) - 1):
+        for column in range(0, len(matrix[row])):
             if matrix[row][column] == 0:
                 continue
             key = (row, column)
@@ -52,7 +52,9 @@ def connectedCell(matrix):
 
 _HACKER_RANK_SAMPLES = [
     # This is the example from the text. Their answer is wrong.
-    ([[1, 1, 1, 0], [0, 1, 1, 0], [0, 0, 1, 0], [1, 0, 0, 0]], 6)
+    ([[1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0], [1, 0, 0, 0]], 5),
+    # Sample Test Case 2
+    ([[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 0, 1], [1, 0, 0, 0, 1], [0, 1, 0, 1, 1]], 5)
 ]
 
 @pytest.mark.parametrize("grid,expected", _HACKER_RANK_SAMPLES)
