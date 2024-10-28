@@ -8,11 +8,11 @@ import pytest
 
 def connectedCell(matrix):
     neighbors = {}
-    for column in range(len(matrix[0]) - 1):
+    for column in range(len(matrix[0])):
         if matrix[0][column] == 0:
             continue
         key = (0, column)
-        if matrix[0][column + 1] == 1:
+        if column < len(matrix[0]) - 1 and matrix[0][column + 1] == 1:
             # Point this cell at the following one.
             neighbors[key] = (0, column + 1)
         else:
@@ -54,7 +54,9 @@ _HACKER_RANK_SAMPLES = [
     # This is the example from the text. Their answer is wrong.
     ([[1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 1, 0], [1, 0, 0, 0]], 5),
     # Sample Test Case 2
-    ([[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 0, 1], [1, 0, 0, 0, 1], [0, 1, 0, 1, 1]], 5)
+    ([[1, 1, 0, 0, 0], [0, 1, 1, 0, 0], [0, 0, 1, 0, 1], [1, 0, 0, 0, 1], [0, 1, 0, 1, 1]], 5),
+    # Test Case 1
+    ([[0, 0, 1, 1], [0, 0, 1, 0], [0, 1, 1, 0], [0, 1, 0, 0], [1, 1, 0, 0]], 8)
 ]
 
 @pytest.mark.parametrize("grid,expected", _HACKER_RANK_SAMPLES)
