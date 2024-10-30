@@ -5,6 +5,7 @@ https://www.hackerrank.com/challenges/playing-with-numbers/problem
 import bisect
 import itertools
 import hypothesis
+import hypothesis.strategies
 import pytest
 
 def playing_with_numbers_internal(a: list[int], queries: list[int]) -> list[int]:
@@ -34,7 +35,7 @@ def playing_with_numbers_internal(a: list[int], queries: list[int]) -> list[int]
             right_part = partial_sums[-1] - partial_sums[after_zeros]
             result = -left_part + right_part
         elif total_query < 0:
-            after_q = bisect.bisect_right(a, -q)
+            # after_q = bisect.bisect_right(a, -q)
             left_part = partial_sums[before_zeros] - partial_sums[0]
             # If total query == 0, the sum of these values remains 0.
             # middle_part =
@@ -49,36 +50,55 @@ def playing_with_numbers_internal(a: list[int], queries: list[int]) -> list[int]
     return results
 
 
+# pylint: disable=C0103
 def playingWithNumbers(arr, queries):
     result = playing_with_numbers_internal(arr, queries)
     for r in result:
         print(r)
+
+
+@hypothesis.strategies.composite
+def array_and_query(draw):
+    '''
+    Return an initial array and a "query" for the HackerRank problem.
+    '''
+    q = draw(hypothesis.strategies.integers(min_value=-2000, max_value=2000))
+    a = draw(
+        hypothesis.strategies.lists(
+            hypothesis.strategies.integers(min_value=-2000, max_value=2000),
+            min_size=1,
+            max_size=50000
+        )
+    )
+    return (a, q)
+
+@hypothesis.given(parameters=array_and_query())
+def test_supposition(parameters):
+    '''
+    Validate our suppositions about the relation of q to binary searches of a.
+    '''
+    a, q = parameters
+    if q <= 0:
+        l = [n for n in a if n >= 0 and n <= -q]
+        expected = sum([abs(q + n) for n in l])
+        actual = len(l) * q - sum(l)
+        assert actual == expected
+
+    if q >= 0:
+        l = [n for n in a if n <= 0 and n >= -q]
+        expected = sum([abs(n - q) for n in l])
+        actual = len(l) * q - sum(l)
+        assert actual == expected
 
 _HACKER_RANK_SAMPLES = [
     # problem description
     ([-1, 2, -3], [1, -2, 3], [5, 7, 6])
 ]
 
-@hypothesis.given(
-        hypothesis.strategies.lists(
-            hypothesis.strategies.integers(min_value=-2000, max_value=0),
-            min_size=1,
-            max_size=50000))
-def test_negatives(negatives):
-    '''
-    Validate our supposition about shifting negative numbers rightward.
-    '''
-    # TODO: Fix q.
-    q = 6
-    expected = sum([abs(n + q) for n in negatives])
-    actual = len(negatives) * q + sum(negatives)
-    assert actual == expected
-
-@pytest.mark.parametrize('a,queries', _HACKER_RANK_SAMPLES)
+@pytest.mark.parametrize('a,queries,expected', _HACKER_RANK_SAMPLES)
 def test_test_cases(a, queries, expected):
     '''
     Samples from HackerRank
     '''
     actual = playing_with_numbers_internal(a, queries)
     assert actual == expected
-
