@@ -4,6 +4,7 @@ https://www.hackerrank.com/challenges/playing-with-numbers/problem
 
 import bisect
 import itertools
+
 import hypothesis
 import hypothesis.strategies
 import pytest
@@ -58,9 +59,8 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
             if after_abs_q == len(a):
                 return -middle_part - left_part
 
-            after_zeros = bisect.bisect_right(a, 0)
             # Values from [|q|, ∞) will simply decrease.
-            right_part = 0 if after_zeros == len(a) else partial_sums[-1] - partial_sums[after_zeros] + a[after_zeros] + (len(a) - after_zeros) * q
+            right_part = partial_sums[-1] - partial_sums[after_abs_q] + a[after_abs_q] + (len(a) - after_abs_q) * q
             assert right_part >= 0
 
             return right_part - left_part - middle_part
@@ -96,6 +96,9 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
 
 # pylint: disable=C0103
 def playingWithNumbers(arr, queries):
+    '''
+    Use binary search to calculate the sum of |arr[i] + q| for all elements of arr.
+    '''
     result = absolute_element_sums(arr, queries)
     for r in result:
         print(r)
@@ -133,6 +136,18 @@ def test_supposition(parameters):
         expected = sum([abs(n - q) for n in l])
         actual = len(l) * q - sum(l)
         assert actual == expected
+
+@hypothesis.given(parameters=array_and_query())
+def test_algorithm(parameters):
+    '''
+    Validate our implementation, and rely on Hypothesis
+    to generate interesting edge cases rather than
+    hand-rolling them.
+    '''
+    a, q = parameters
+    expected = sum([abs(n + q) for n in a])
+    actual, *_ = absolute_element_sums(a, [q])
+    assert actual == expected
 
 @hypothesis.given(hypothesis.strategies.lists(
             hypothesis.strategies.integers(min_value=-2000, max_value=2000),
