@@ -42,7 +42,7 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
 
         if q < 0:
             before_zeros = bisect.bisect_left(a, 0)
-            # Values from (∞, 0] will *decrease* by |q|, hence their absolute value will increase.
+            # Values from (Infinity, 0] will *decrease* by |q|, hence their absolute value will increase.
             left_part = 0 if before_zeros == 0 else partial_sums[before_zeros - 1] + before_zeros * q
             assert left_part <= 0
 
@@ -59,7 +59,7 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
             if after_abs_q == len(a):
                 return -middle_part - left_part
 
-            # Values from [|q|, ∞) will simply decrease.
+            # Values from [|q|, Infinity) will simply decrease.
             right_part = partial_sums[-1] - partial_sums[after_abs_q] + a[after_abs_q] + (len(a) - after_abs_q) * q
             assert right_part >= 0
 
@@ -68,7 +68,7 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
         else:
             # If this is 0, there are *no* smaller values in the list.
             before_negative_q = bisect.bisect_left(a, -q)
-            # Values from (-∞, -q] will have the same sign, but decrease in absolute value.
+            # Values from (-Infinity, -q] will have the same sign, but decrease in absolute value.
             left_part = 0 if before_negative_q == 0 else partial_sums[before_negative_q - 1] + (before_negative_q) * q
             assert left_part <= 0
 
@@ -77,7 +77,7 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
             middle_part = 0 if after_zeros - before_negative_q < 1 else (partial_sums[after_zeros - 1] - partial_sums[before_negative_q] + a[before_negative_q]) + (after_zeros - before_negative_q) * q
             assert middle_part >= 0
 
-            # Values from (0, ∞) will each increase by q.
+            # Values from (0, Infinity) will each increase by q.
             right_part = 0 if after_zeros == len(a) else partial_sums[-1] - partial_sums[after_zeros] + a[after_zeros] + (len(a) - after_zeros) * q
             assert right_part >= 0
 
