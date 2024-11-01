@@ -22,46 +22,73 @@ def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
             # Obviously we could just sum the array! But this is a test of
             # my understanding of the boundary issues. "before_zeros" will
             # be the index of the first non-negative value, *if there is one*.
+            # It will be len(a) if all values are < 0.
             before_zeros = bisect.bisect_left(a, 0)
-            left_part = 0 if before_zeros == 0 else partial_sums[before_zeros - 1]
 
+            left_part = 0 if before_zeros == 0 else partial_sums[before_zeros - 1]
+            assert left_part <= 0
+
+            if before_zeros == len(a):
+                return -left_part
+
+            # If all values are > 0, this will == 0.
+            # If all values are < 0, it will == len(a)
             after_zeros = bisect.bisect_right(a, 0)
-            right_part = 0 if after_zeros == len(partial_sums) else partial_sums[-1] - partial_sums[after_zeros] + abs(a[after_zeros])
+            right_part = 0 if after_zeros == len(a) else partial_sums[-1] - partial_sums[after_zeros] + a[after_zeros]
+            assert right_part >= 0
 
             return right_part - left_part
-        elif q < 0:
+
+        if q < 0:
             before_zeros = bisect.bisect_left(a, 0)
-            left_start, left_end = (0, before_zeros - 1 if before_zeros > 0 else 0)
-            after_abs_q = bisect.bisect_right(a, -q)
-            middle_start, middle_end = (before_zeros, after_abs_q - 1)
-            right_start, right_end = (after_abs_q, len(a) - 1)
             # Values from (∞, 0] will *decrease* by |q|, hence their absolute value will increase.
-            left_part = ((left_end - left_start + 1) * q) - partial_sums[left_end] if left_end > 0 else 0
+            left_part = 0 if before_zeros == 0 else partial_sums[before_zeros - 1] + before_zeros * q
+            assert left_part <= 0
+
+            if before_zeros == len(a):
+                return -left_part
+
+            # We know there are values >= 0.
+            after_abs_q = bisect.bisect_right(a, -q)
+
             # Values from (0, |q|] will change sign. This interval is "closed" because we need to count each 0.
-            middle_part = partial_sums[middle_end] - partial_sums[middle_start] + a[middle_start] if middle_end > middle_start else 0
+            middle_part = 0 if after_abs_q == before_zeros else partial_sums[after_abs_q - 1] - partial_sums[before_zeros] + a[before_zeros] + (after_abs_q - before_zeros) * q
+            assert middle_part <= 0
+
+            if after_abs_q == len(a):
+                return -middle_part - left_part
+
+            after_zeros = bisect.bisect_right(a, 0)
             # Values from [|q|, ∞) will simply decrease.
-            right_part = partial_sums[right_end] - partial_sums[right_start] + a[right_start] + ((right_end - right_start) * q) if right_end > right_start else 0
-            return left_part + middle_part + right_part
+            right_part = 0 if after_zeros == len(a) else partial_sums[-1] - partial_sums[after_zeros] + a[after_zeros] + (len(a) - after_zeros) * q
+            assert right_part >= 0
+
+            return right_part - left_part - middle_part
+
         else:
             # If this is 0, there are *no* smaller values in the list.
             before_negative_q = bisect.bisect_left(a, -q)
             # Values from (-∞, -q] will have the same sign, but decrease in absolute value.
-            left_part = 0 if before_negative_q == 0 else (before_negative_q) * q + partial_sums[before_negative_q - 1]
+            left_part = 0 if before_negative_q == 0 else partial_sums[before_negative_q - 1] + (before_negative_q) * q
+            assert left_part <= 0
 
             after_zeros = bisect.bisect_right(a, 0)
             # Values from (-q, 0] will change sign. See above comment.
-            middle_part = 0 if after_zeros - before_negative_q <= 1 else (partial_sums[after_zeros - 1] - partial_sums[before_negative_q] + a[before_negative_q]) + (after_zeros - before_negative_q) * q
+            middle_part = 0 if after_zeros - before_negative_q < 1 else (partial_sums[after_zeros - 1] - partial_sums[before_negative_q] + a[before_negative_q]) + (after_zeros - before_negative_q) * q
+            assert middle_part >= 0
 
             # Values from (0, ∞) will each increase by q.
             right_part = 0 if after_zeros == len(a) else partial_sums[-1] - partial_sums[after_zeros] + a[after_zeros] + (len(a) - after_zeros) * q
-            return before_negative_q + middle_part + right_part
+            assert right_part >= 0
+
+            return middle_part + right_part - left_part
 
     results = []
     total_query = 0
 
     for q in queries:
         total_query += q
-        result = absolute_element_sum_internal(q)
+        result = absolute_element_sum_internal(total_query)
         results.append(result)
 
     return results
