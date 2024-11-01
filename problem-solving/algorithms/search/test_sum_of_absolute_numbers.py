@@ -8,51 +8,68 @@ import hypothesis
 import hypothesis.strategies
 import pytest
 
-def playing_with_numbers_internal(a: list[int], queries: list[int]) -> list[int]:
+def absolute_element_sums(a: list[int], queries: list[int]) -> list[int]:
     '''
     Internal implementation that returns a list suitable for testing, rather
     than printing to standard output.
     '''
     a.sort()
     partial_sums = list(itertools.accumulate(a))
+
+    # pylint: disable=C0301
+    def absolute_element_sum_internal(q: int) -> int:
+        if q == 0:
+            # Obviously we could just sum the array! But this is a test of
+            # my understanding of the boundary issues. "before_zeros" will
+            # be the index of the first non-negative value, *if there is one*.
+            before_zeros = bisect.bisect_left(a, 0)
+            left_part = 0 if before_zeros == 0 else partial_sums[before_zeros - 1]
+
+            after_zeros = bisect.bisect_right(a, 0)
+            right_part = 0 if after_zeros == len(partial_sums) else partial_sums[-1] - partial_sums[after_zeros] + abs(a[after_zeros])
+
+            return right_part - left_part
+        elif q < 0:
+            before_zeros = bisect.bisect_left(a, 0)
+            left_start, left_end = (0, before_zeros - 1 if before_zeros > 0 else 0)
+            after_abs_q = bisect.bisect_right(a, -q)
+            middle_start, middle_end = (before_zeros, after_abs_q - 1)
+            right_start, right_end = (after_abs_q, len(a) - 1)
+            # Values from (∞, 0] will *decrease* by |q|, hence their absolute value will increase.
+            left_part = ((left_end - left_start + 1) * q) - partial_sums[left_end] if left_end > 0 else 0
+            # Values from (0, |q|] will change sign. This interval is "closed" because we need to count each 0.
+            middle_part = partial_sums[middle_end] - partial_sums[middle_start] + a[middle_start] if middle_end > middle_start else 0
+            # Values from [|q|, ∞) will simply decrease.
+            right_part = partial_sums[right_end] - partial_sums[right_start] + a[right_start] + ((right_end - right_start) * q) if right_end > right_start else 0
+            return left_part + middle_part + right_part
+        else:
+            # If this is 0, there are *no* smaller values in the list.
+            before_negative_q = bisect.bisect_left(a, -q)
+            # Values from (-∞, -q] will have the same sign, but decrease in absolute value.
+            left_part = 0 if before_negative_q == 0 else (before_negative_q) * q + partial_sums[before_negative_q - 1]
+
+            after_zeros = bisect.bisect_right(a, 0)
+            # Values from (-q, 0] will change sign. See above comment.
+            middle_part = 0 if after_zeros - before_negative_q <= 1 else (partial_sums[after_zeros - 1] - partial_sums[before_negative_q] + a[before_negative_q]) + (after_zeros - before_negative_q) * q
+
+            # Values from (0, ∞) will each increase by q.
+            right_part = 0 if after_zeros == len(a) else partial_sums[-1] - partial_sums[after_zeros] + a[after_zeros] + (len(a) - after_zeros) * q
+            return before_negative_q + middle_part + right_part
+
     results = []
     total_query = 0
+
     for q in queries:
         total_query += q
-        # If q is 0, a 0 in the array won't matter (i.e. it can't affect the sum).
-        # If q is < 0, each 0 in the array will get the value -q.
-        # If q is > 0, each 0 will get the value q.
-        before_zeros = bisect.bisect_left(a, 0)
-        after_zeros = bisect.bisect_right(a, 0)
-
-        # If q < 0, array elements < 0 remain negative. The sum of the absolute value
-        # of this part of the array is simply the absolute value of the difference of the
-        # partial sums at the extremes. Array elements > |q| remain positive, and their sum
-        # is, again, the difference of the partial sums at the extremes. Values in [|q|, 0]
-        # need special handling.
-        if total_query == 0:
-            left_part = partial_sums[before_zeros] - partial_sums[0]
-            right_part = partial_sums[-1] - partial_sums[after_zeros]
-            result = -left_part + right_part
-        elif total_query < 0:
-            # after_q = bisect.bisect_right(a, -q)
-            left_part = partial_sums[before_zeros] - partial_sums[0]
-            # If total query == 0, the sum of these values remains 0.
-            # middle_part =
-            right_part = partial_sums[-1] - partial_sums[after_zeros]
-        else:
-            before_q = bisect.bisect_left(a, -q)
-            left_part = partial_sums[before_q] - partial_sums[0]
-
-            right_part = partial_sums[-1] - partial_sums[after_zeros]
-        result *= total_query
+        result = absolute_element_sum_internal(q)
         results.append(result)
+
     return results
 
 
 # pylint: disable=C0103
 def playingWithNumbers(arr, queries):
-    result = playing_with_numbers_internal(arr, queries)
+    result = absolute_element_sums(arr, queries)
     for r in result:
         print(r)
 
@@ -81,7 +98,7 @@ def test_supposition(parameters):
     if q <= 0:
         l = [n for n in a if n >= 0 and n <= -q]
         expected = sum([abs(q + n) for n in l])
-        actual = len(l) * q - sum(l)
+        actual = len(l) * -q - sum(l)
         assert actual == expected
 
     if q >= 0:
@@ -90,15 +107,46 @@ def test_supposition(parameters):
         actual = len(l) * q - sum(l)
         assert actual == expected
 
-_HACKER_RANK_SAMPLES = [
+@hypothesis.given(hypothesis.strategies.lists(
+            hypothesis.strategies.integers(min_value=-2000, max_value=2000),
+            min_size=1,
+            max_size=50000
+        ))
+def test_zero_query(l):
+    '''
+    Verify that we are using partial sums and binary search correctly.
+    '''
+    expected = sum([abs(n) for n in l])
+    actual, *_ = absolute_element_sums(l, [0])
+    assert actual == expected
+
+_EDGE_CASES = [
+    # my own edge cases
+    ([-2, -1, 0, 0, 1, 2], 0),
+    ([-2, -1, 0, 0, 1, 2], 3),
+    ([-2, -1, 0, 0, 1, 2], -3),
+    ([-2, -1, 0, 0, 1, 2], 1),
+    ([-2, -1, 0, 0, 1, 2], -1),
+]
+
+@pytest.mark.parametrize('a,query', _EDGE_CASES)
+def test_edge_cases(a, query):
+    '''
+    Samples from HackerRank
+    '''
+    expected = sum(abs(n + query) for n in a)
+    actual, *_ = absolute_element_sums(a, [query])
+    assert actual == expected
+
+_TEST_CASES = [
     # problem description
     ([-1, 2, -3], [1, -2, 3], [5, 7, 6])
 ]
 
-@pytest.mark.parametrize('a,queries,expected', _HACKER_RANK_SAMPLES)
+@pytest.mark.parametrize('a,queries,expected', _TEST_CASES)
 def test_test_cases(a, queries, expected):
     '''
     Samples from HackerRank
     '''
-    actual = playing_with_numbers_internal(a, queries)
+    actual = absolute_element_sums(a, queries)
     assert actual == expected
