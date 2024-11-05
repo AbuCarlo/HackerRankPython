@@ -11,6 +11,7 @@ sample = [
     [3, 2, 1, 1, 1], [4, 3, 2], [1, 1, 4, 1]
 ]
 
+# pylint: disable=C0103
 def equalStacks(h1, h2, h3):
     '''
     General solution for any number of stacks of cylinders.
