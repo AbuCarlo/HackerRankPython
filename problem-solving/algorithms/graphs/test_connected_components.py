@@ -15,11 +15,8 @@ def findConnectedComponents(a) -> int:
     result = 0
     # In how many members of the powerset of a does this 0
     # bit appear? We can include {}, which has no 1 bits!
-    for b in range(0, 64):
-        zeros = 0
-        for n in a:
-            if n & (1 << b) == 0:
-                zeros += 1
+    for b in range(64):
+        zeros = sum((n & (1 << b)) == 0 for n in a)
         # We've counted the values with a 0 in this position.
         # Only in the powerset of these values does this bit
         # remain a 0 (outside of that, it's ||'ed with 1).
@@ -40,7 +37,7 @@ _TEST_CASES = [
     # Only in the union of these two values is there an edge.
     ([1, 2], 254),
     # There is no edge, since all the 1s are in the same position.
-    ([1, 1], 128),
+    ([1, 1], 255),
     # cases from problem description
     ([1, 2, 3, 5], 944),
     ([2, 5, 9], 504),
