@@ -26,7 +26,7 @@ def findConnectedComponents(a) -> int:
         # Conveniently, if we count 0 0s, this bit will still
         # be a 0 in the reduction of the empty set. So "result"
         # will always be at least 1.
-        result += 1 << zeros
+        result += (1 << zeros)
     singletons = list(filter(lambda n: n.bit_count() == 1, a))
     result += len(singletons)
     return result
@@ -34,15 +34,16 @@ def findConnectedComponents(a) -> int:
 
 _TEST_CASES = [
     # obvious base cases
-    ([3], 126),
     ([0], 128),
     ([1], 128),
+    ([3], 126),
     # Only in the union of these two values is there an edge.
-    ([1, 2], 255),
-    ([1, 1], 254),
+    ([1, 2], 254),
+    # There is no edge, since all the 1s are in the same position.
+    ([1, 1], 128),
     # cases from problem description
-    ([2, 5, 9], 944),
-    ([1, 2, 3, 5], 504)
+    ([1, 2, 3, 5], 944),
+    ([2, 5, 9], 504),
 ]
 
 @pytest.mark.parametrize("a, expected", _TEST_CASES)
