@@ -19,18 +19,21 @@ def findConnectedComponents(a) -> int:
     # In how many members of the powerset of a does this 0
     # bit appear? We can include {}, which has no 1 bits!
     for b in range(64):
-        zeros = sum(1 for n in a if n & (1 << b) == 0)
+        zero_bits = sum(1 for n in a if n & (1 << b) == 0)
         # We've counted the values with a 0 in this position.
         # Only in the powerset of these values does this bit
         # remain a 0 (outside of that, it's ||'ed with 1).
         # Conveniently, if we count 0 0s, this bit will still
         # be a 0 in the reduction of the empty set. So "result"
         # will always be at least 1.
-        result += (1 << zeros)
+        result += (1 << zero_bits)
+    # If we assume that *every* input value already had a connected
+    # component, then the size of the powerset of the input ==
+    # the number of connected components that actually have edges.
     result += (1 << len(a)) - 1
-    zeros = [n for n in a if n == 0]
-    # However, we have now overcounted 0s,
-    result -= (1 << len(zeros)) - 1
+    # However, we inflated the number of 0s we counted.
+    zero_values = [n for n in a if n == 0]
+    result -= (1 << len(zero_values)) - 1
     return result
 
 _TEST_CASES = [
