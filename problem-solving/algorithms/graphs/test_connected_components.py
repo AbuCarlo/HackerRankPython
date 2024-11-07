@@ -2,15 +2,7 @@
 https://www.hackerrank.com/challenges/subset-component/problem
 '''
 
-import itertools
-
 import pytest
-
-# Taken directly from https://docs.python.org/3/library/itertools.html
-def powerset(iterable):
-    "powerset([1,2,3]) → () (1,) (2,) (3,) (1,2) (1,3) (2,3) (1,2,3)"
-    s = list(iterable)
-    return itertools.chain.from_iterable(itertools.combinations(s, r) for r in range(len(s)+1))
 
 # pylint: disable=C0103
 def findConnectedComponents(a) -> int:
@@ -19,8 +11,10 @@ def findConnectedComponents(a) -> int:
     and all 0s as singletons. How many connected components are in
     the powerset of all the integers?
     '''
-    #a = [n if n.bit_count() > 1 else 0 for n in a]
-    # [] has no 1s, and therefore 64 connected components.
+    # No singleton (power of 2) will be part of a connected component.
+    # On the other hand, every other integer already forms a connected
+    # component. Erase the singletons, or we'll undercount the 0s.
+    a = [n if n.bit_count() > 1 else 0 for n in a]
     result = 0
     # In how many members of the powerset of a does this 0
     # bit appear? We can include {}, which has no 1 bits!
@@ -34,9 +28,18 @@ def findConnectedComponents(a) -> int:
         # will always be at least 1.
         result += (1 << zeros)
     result += (1 << len(a)) - 1
+    zeros = [n for n in a if n == 0]
+    # However, we have now overcounted 0s,
+    result -= (1 << len(zeros)) - 1
     return result
 
 _TEST_CASES = [
+    ([], 64),
+    ([0], 128),
+    ([1], 128),
+    ([0, 0], 256),
+    ([1, 0], 256),
+    ([256, 0], 256),
     ([2, 5, 9], 504),
 ]
 
