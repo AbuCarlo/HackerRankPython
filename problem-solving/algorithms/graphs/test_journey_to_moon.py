@@ -38,11 +38,11 @@ def journeyToMoon(n: int, pairs) -> int:
             # pylint: disable=C0301
             parent_set, child_set = disjoint_sets[parent_root], disjoint_sets[child_root]
             if parent_set < child_set:
-                roots[parent_root] = child_root
+                roots[parent] = roots[parent_root] = child_root
                 disjoint_sets[child_root] += parent_set
                 disjoint_sets[parent_root] = 0
             else:
-                roots[child_root] = parent_root
+                roots[child] = roots[child_root] = parent_root
                 disjoint_sets[parent_root] += child_set
                 disjoint_sets[child_root] = 0
 
@@ -63,3 +63,10 @@ def test_journey(n, pairs, expected: int):
     '''
     actual = journeyToMoon(n, pairs)
     assert actual == expected
+
+def test_as_benchmark(benchmark):
+    '''
+    Using Pytest to improve this performance.
+    '''
+    n, pairs, expected = _SAMPLES[3]
+    benchmark(test_journey, n, pairs, expected)
