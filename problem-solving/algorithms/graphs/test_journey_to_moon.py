@@ -2,7 +2,6 @@
 https://www.hackerrank.com/challenges/journey-to-the-moon/problem
 '''
 
-import collections
 import itertools
 
 import pytest
@@ -21,18 +20,14 @@ def journeyToMoon(n: int, pairs) -> int:
 
     disjoint_sets = [1] * n
 
-    # pairs = [(u, v) if u < v else (v, u) for u, v in pairs]
-    # pairs.sort()
-
     for parent, child in pairs:
         parent_root, child_root = find_root(parent), find_root(child)
         if parent_root == child_root:
             continue
         # We don't need to compare the sizes of the disjoint sets,
         # since they're both just integers.
-        child_set = disjoint_sets[child_root]
         roots[child_root] = parent_root
-        disjoint_sets[parent_root] += child_set
+        disjoint_sets[parent_root] += disjoint_sets[child_root]
         disjoint_sets[child_root] = 0
 
     # This is faster than nested loops!
