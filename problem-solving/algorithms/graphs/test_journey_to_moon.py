@@ -29,7 +29,7 @@ def journeyToMoon(n: int, pairs) -> int:
             v, roots[v] = roots[v], roots[roots[v]]
         return v
 
-    disjoint_sets = {v: set([v]) for v in range(n)}
+    disjoint_sets = {v: 1 for v in range(n)}
 
     for parent in adjacency:
         for child in adjacency[parent]:
@@ -37,19 +37,17 @@ def journeyToMoon(n: int, pairs) -> int:
             if parent_root == child_root:
                 continue
             # pylint: disable=C0301
-            parent_set, child_set = disjoint_sets.get(parent_root, set()), disjoint_sets.get(child_root, set())
-            if len(parent_set) < len(child_set):
+            parent_set, child_set = disjoint_sets.get(parent_root, 0), disjoint_sets.get(child_root, 0)
+            if parent_set < child_set:
                 roots[parent_root] = child_root
-                child_set.update(parent_set)
+                disjoint_sets[child_root] += parent_set
                 disjoint_sets.pop(parent_root)
             else:
                 roots[child_root] = parent_root
-                parent_set.update(child_set)
+                disjoint_sets[parent_root] += child_set
                 disjoint_sets.pop(child_root)
 
-    population_sizes = [len(s) for s in disjoint_sets.values()]
-
-    combinations = itertools.combinations(population_sizes, 2)
+    combinations = itertools.combinations(disjoint_sets.values(), 2)
     return sum(x * y for x, y in combinations)
 
 _SAMPLES = [
