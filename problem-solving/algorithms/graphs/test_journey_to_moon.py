@@ -31,11 +31,12 @@ def journeyToMoon(n: int, pairs) -> int:
 
     disjoint_sets = {v: set([v]) for v in range(n)}
 
-    for parent, children in adjacency.items():
-        for child in children:
+    for parent in adjacency:
+        for child in adjacency[parent]:
             parent_root, child_root = find_root(parent), find_root(child)
             if parent_root == child_root:
                 continue
+            # pylint: disable=C0301
             parent_set, child_set = disjoint_sets.get(parent_root, set()), disjoint_sets.get(child_root, set())
             if len(parent_set) < len(child_set):
                 roots[parent_root] = child_root
