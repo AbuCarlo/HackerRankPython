@@ -9,18 +9,8 @@ import pytest
 # pylint: disable=C0103
 def journeyToMoon(n: int, pairs) -> int:
     '''
-    Turn the list of pairs into an adjacency matrix. Compute
-    the disjoint sets by the conventional algorithm.
+    Disjoint sets algorithm, computing only the sizes of the sets.
     '''
-    adjacency = [list() for _ in range(n)]
-    for p in pairs:
-        u, v = p
-        # There's no functional reason for this.
-        # It makes debugging more legible.
-        if u > v:
-            u, v = v, u
-        adjacency[u].append(v)
-
     roots = list(range(n))
 
     def find_root(v):
@@ -30,21 +20,25 @@ def journeyToMoon(n: int, pairs) -> int:
 
     disjoint_sets = [1] * n
 
-    for parent in range(n):
-        for child in adjacency[parent]:
-            parent_root, child_root = find_root(parent), find_root(child)
-            if parent_root == child_root:
-                continue
-            # pylint: disable=C0301
-            parent_set, child_set = disjoint_sets[parent_root], disjoint_sets[child_root]
-            if parent_set < child_set:
-                roots[parent] = roots[parent_root] = child_root
-                disjoint_sets[child_root] += parent_set
-                disjoint_sets[parent_root] = 0
-            else:
-                roots[child] = roots[child_root] = parent_root
-                disjoint_sets[parent_root] += child_set
-                disjoint_sets[child_root] = 0
+    for pair in pairs:
+        child, parent = pair
+        if child < parent:
+            parent, child = child, parent
+
+        parent_root, child_root = find_root(parent), find_root(child)
+        if parent_root == child_root:
+            continue
+        # pylint: disable=C0301
+        parent_set, child_set = disjoint_sets[parent_root], disjoint_sets[child_root]
+        if parent_set < child_set:
+            roots[parent] = roots[parent_root] = child_root
+            disjoint_sets[child_root] += parent_set
+            disjoint_sets[parent_root] = 0
+        else:
+            roots[child] = roots[child_root] = parent_root
+            disjoint_sets[parent_root] += child_set
+            disjoint_sets[child_root] = 0
+
     # This is faster than nested loops!
     combinations = itertools.combinations([size for size in disjoint_sets if size > 0], 2)
     return sum(x * y for x, y in combinations)
