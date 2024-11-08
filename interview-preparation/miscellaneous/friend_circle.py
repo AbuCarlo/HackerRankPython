@@ -11,7 +11,7 @@ def find_root(roots, v):
         v = roots[v]
     return v
 
-# pylint: disable=C0103
+# pylint: disable=C0103,C0116
 def friendcircle(queries):
     roots = {}
     sizes = {}
@@ -31,13 +31,13 @@ def friendcircle(queries):
         if sizes[left] < sizes[right]:
             left, right = right, left
         # Now compress the path from right to the root.
-        if left != right:     
+        if left != right:
             sizes[left] += sizes[right]
             roots[right] = left
             max_size = max(max_size, sizes[left])
 
         result.append(max_size)
-  
+
     return result
 
 print(friendcircle([[1, 2], [1, 3]]))

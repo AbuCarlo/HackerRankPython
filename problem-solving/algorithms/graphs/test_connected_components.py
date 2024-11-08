@@ -43,7 +43,7 @@ _TEST_CASES = [
     ([0, 0], 256),
     ([1, 0], 256),
     ([256, 0], 256),
-    ([2, 5, 9], 504),
+    ([2, 5, 9], 504)
 ]
 
 @pytest.mark.parametrize("a, expected", _TEST_CASES)
