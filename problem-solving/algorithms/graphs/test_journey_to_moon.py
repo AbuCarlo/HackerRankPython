@@ -2,6 +2,7 @@
 https://www.hackerrank.com/challenges/journey-to-the-moon/problem
 '''
 
+import collections
 import itertools
 
 import pytest
@@ -31,17 +32,18 @@ def journeyToMoon(n: int, pairs) -> int:
         # pylint: disable=C0301
         parent_set, child_set = disjoint_sets[parent_root], disjoint_sets[child_root]
         if parent_set < child_set:
-            roots[parent] = roots[parent_root] = child_root
+            roots[parent_root] = child_root
             disjoint_sets[child_root] += parent_set
             disjoint_sets[parent_root] = 0
         else:
-            roots[child] = roots[child_root] = parent_root
+            roots[child_root] = parent_root
             disjoint_sets[parent_root] += child_set
             disjoint_sets[child_root] = 0
 
     # This is faster than nested loops!
     combinations = itertools.combinations([size for size in disjoint_sets if size > 0], 2)
-    return sum(x * y for x, y in combinations)
+    result = sum(x * y for x, y in combinations)
+    return result
 
 _SAMPLES = [
     (5, [(0, 1), (2, 3), (0, 4)], 6),
