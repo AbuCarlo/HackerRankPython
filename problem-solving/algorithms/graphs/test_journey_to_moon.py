@@ -45,7 +45,7 @@ def journeyToMoon(n: int, pairs) -> int:
                 roots[child] = roots[child_root] = parent_root
                 disjoint_sets[parent_root] += child_set
                 disjoint_sets[child_root] = 0
-
+    # This is faster than nested loops!
     combinations = itertools.combinations([size for size in disjoint_sets if size > 0], 2)
     return sum(x * y for x, y in combinations)
 
