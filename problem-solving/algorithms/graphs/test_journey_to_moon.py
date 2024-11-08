@@ -21,24 +21,19 @@ def journeyToMoon(n: int, pairs) -> int:
 
     disjoint_sets = [1] * n
 
-    for pair in pairs:
-        child, parent = pair
-        if child < parent:
-            parent, child = child, parent
+    # pairs = [(u, v) if u < v else (v, u) for u, v in pairs]
+    # pairs.sort()
 
+    for parent, child in pairs:
         parent_root, child_root = find_root(parent), find_root(child)
         if parent_root == child_root:
             continue
-        # pylint: disable=C0301
-        parent_set, child_set = disjoint_sets[parent_root], disjoint_sets[child_root]
-        if parent_set < child_set:
-            roots[parent_root] = child_root
-            disjoint_sets[child_root] += parent_set
-            disjoint_sets[parent_root] = 0
-        else:
-            roots[child_root] = parent_root
-            disjoint_sets[parent_root] += child_set
-            disjoint_sets[child_root] = 0
+        # We don't need to compare the sizes of the disjoint sets,
+        # since they're both just integers.
+        child_set = disjoint_sets[child_root]
+        roots[child_root] = parent_root
+        disjoint_sets[parent_root] += child_set
+        disjoint_sets[child_root] = 0
 
     # This is faster than nested loops!
     combinations = itertools.combinations([size for size in disjoint_sets if size > 0], 2)
