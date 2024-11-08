@@ -2,7 +2,6 @@
 https://www.hackerrank.com/challenges/journey-to-the-moon/problem
 '''
 
-import collections
 import itertools
 
 import pytest
@@ -13,7 +12,7 @@ def journeyToMoon(n: int, pairs) -> int:
     Turn the list of pairs into an adjacency matrix. Compute
     the disjoint sets by the conventional algorithm.
     '''
-    adjacency = collections.defaultdict(list)
+    adjacency = [list() for _ in range(n)]
     for p in pairs:
         u, v = p
         # There's no functional reason for this.
@@ -22,32 +21,32 @@ def journeyToMoon(n: int, pairs) -> int:
             u, v = v, u
         adjacency[u].append(v)
 
-    roots = {a: a for a in range(n) }
+    roots = list(range(n))
 
     def find_root(v):
         while roots[v] != v:
             v, roots[v] = roots[v], roots[roots[v]]
         return v
 
-    disjoint_sets = {v: 1 for v in range(n)}
+    disjoint_sets = [1] * n
 
-    for parent in adjacency:
+    for parent in range(n):
         for child in adjacency[parent]:
             parent_root, child_root = find_root(parent), find_root(child)
             if parent_root == child_root:
                 continue
             # pylint: disable=C0301
-            parent_set, child_set = disjoint_sets.get(parent_root, 0), disjoint_sets.get(child_root, 0)
+            parent_set, child_set = disjoint_sets[parent_root], disjoint_sets[child_root]
             if parent_set < child_set:
                 roots[parent_root] = child_root
                 disjoint_sets[child_root] += parent_set
-                disjoint_sets.pop(parent_root)
+                disjoint_sets[parent_root] = 0
             else:
                 roots[child_root] = parent_root
                 disjoint_sets[parent_root] += child_set
-                disjoint_sets.pop(child_root)
+                disjoint_sets[child_root] = 0
 
-    combinations = itertools.combinations(disjoint_sets.values(), 2)
+    combinations = itertools.combinations([size for size in disjoint_sets if size > 0], 2)
     return sum(x * y for x, y in combinations)
 
 _SAMPLES = [
