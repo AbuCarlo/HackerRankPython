@@ -7,6 +7,11 @@ import collections
 class FenwickTree:
     '''
     https://en.wikipedia.org/wiki/Fenwick_tree
+
+    This Fenwick tree represents the number of times
+    a value occurs, not the value itself. We use it
+    to count how many of node's ancestors fall
+    within some range.
     '''
     def __init__(self, n):
         self.n = n
