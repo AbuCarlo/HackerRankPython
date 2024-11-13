@@ -48,12 +48,14 @@ def similarPair(n, k, edges):
     result = 0
     while stack:
         node, state = stack[-1]
+        print(f'Node: {node}; state: {state}')
         if not state:
             visited.add(node)
             left = max(1, node - k)
             right = min(n, node + k)
+            # The right hand side is the "range sum."
             result += fenwick.query(right) - fenwick.query(left - 1)
-            # We have found 1 more node of this value.
+            # Propagate this downward.
             fenwick.update(node, 1)
             stack[-1] = (node, True)
 
